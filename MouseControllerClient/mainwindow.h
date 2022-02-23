@@ -69,5 +69,7 @@ private slots:
     void on_pB_RightClick_released();
 
 
+    void on_pB_Settings_clicked();
+    void on_pB_SettingsBack_clicked();
 };
 #endif // MAINWINDOW_H

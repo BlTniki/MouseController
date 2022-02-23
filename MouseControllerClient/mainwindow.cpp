@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->InputWindow->setGeometry(0, 0, ui->InputWindow->geometry().width(), ui->InputWindow->geometry().height());
     ui->InputWindow->hide();
+    ui->SettingsWindow->setGeometry(0, 0, ui->SettingsWindow->geometry().width(), ui->SettingsWindow->geometry().height());
+    ui->SettingsWindow->hide();
 
     sa = ui->senseArea;
     sb = ui->scrollBar;
@@ -157,3 +159,21 @@ void MainWindow::on_pB_RightClick_released()
 {
     SendToServer(Mouse_Right_btn, "u");
 }
+
+
+/**
+ * Block of settings
+ */
+void MainWindow::on_pB_Settings_clicked()
+{
+    ui->InputWindow->hide();
+    ui->SettingsWindow->show();
+}
+
+
+void MainWindow::on_pB_SettingsBack_clicked()
+{
+    ui->SettingsWindow->hide();
+    ui->InputWindow->show();
+}
+
