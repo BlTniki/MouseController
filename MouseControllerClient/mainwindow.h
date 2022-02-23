@@ -6,6 +6,9 @@
 #include <QUdpSocket>
 #include <QTouchEvent>
 #include <QRegularExpressionValidator>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QFile>
 
 #include "sensearea.h"
 #include "scrollbar.h"
@@ -33,6 +36,8 @@ private:
     quint16 messageType;
     QRegularExpressionValidator *mouseSenseValidator;
     QRegularExpressionValidator *scrollSenseValidator;
+    QJsonObject SettingsStates{{"mouseSense",1},{"scrollSense",1}};
+    QFile SettingsSaves;
     int oldMouseX = 0, oldMouseY = 0;
     int oldScrollY;
     int mouseSense=1, scrollSense=1;

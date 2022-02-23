@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    //setup UI
     ui->setupUi(this);
     ui->InputWindow->setGeometry(0, 0, ui->InputWindow->geometry().width(), ui->InputWindow->geometry().height());
     ui->InputWindow->hide();
@@ -21,6 +22,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(sa, &SenseArea::ClickRecived, this, &MainWindow::ClickDo);
     connect(sb, &ScrollBar::TouchRecived, this, &MainWindow::ScrollMove);
 
+    //setup settings state
+    SettingsSaves.setFileName("SettingsSaves");
+    if(SettingsSaves.exists()){
+        QString buf;
+        SettingsSaves.open(QIODevice::ReadOnly | QIODevice::Text);
+        buf = SettingsSaves.readAll();
+        SettingsSaves.close();
+        SettingsStates = QJsonDocument::fromJson(buf.toUtf8()).object();
+        ui->lE_MouseSense->setText(SettingsStates["mouseSense"].toString());
+        ui->lE_ScrollSense->setText(SettingsStates["scrollSense"].toString());
+    }
+
+    //setup udp socket
     UDPsocket = new QUdpSocket(this);
     UDPsocket->connectToHost("192.168.31.193", 2323);
     connect(UDPsocket, &QUdpSocket::disconnected, UDPsocket, &QUdpSocket::deleteLater);
@@ -28,6 +42,14 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    SettingsStates["mouseSense"] = QString("%1").arg(mouseSense);
+    SettingsStates["scrollSense"] = QString("%1").arg(mouseSense);
+    QJsonDocument doc(SettingsStates);
+    QString jsonString = doc.toJson(QJsonDocument::Indented);
+    SettingsSaves.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream stream( &SettingsSaves );
+    stream << jsonString;
+    SettingsSaves.close();
     delete ui;
 }
 
