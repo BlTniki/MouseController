@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->SettingsWindow->hide();
     mouseSenseValidator = new QRegularExpressionValidator(QRegularExpression("^[1-9]$"));
     ui->lE_MouseSense->setValidator(mouseSenseValidator);
+    scrollSenseValidator = new QRegularExpressionValidator(QRegularExpression("^[1-9]$"));
+    ui->lE_ScrollSense->setValidator(scrollSenseValidator);
 
     sa = ui->senseArea;
     sb = ui->scrollBar;
@@ -117,7 +119,7 @@ void MainWindow::ScrollMove(QTouchEvent *te)//sending a wish to turn the weel, p
     int y = te->points()[0].position().y();
     int dy = y-oldScrollY;
 
-    QString str = QString("%1y").arg(dy);
+    QString str = QString("%1y").arg(dy*scrollSense);
     qDebug() << dy << str;
     if(dy!=0){
         SendToServer(Scroll_move, str);
@@ -187,7 +189,7 @@ void MainWindow::on_lE_MouseSense_textChanged(const QString &arg1)
 
 void MainWindow::on_pB_MouseSensePlus_clicked()
 {
-    if(ui->lE_MouseSense->text().toInt()+1<=10)
+    if(ui->lE_MouseSense->text().toInt()+1<=9)
         ui->lE_MouseSense->setText(QString::number(ui->lE_MouseSense->text().toInt()+1));
 }
 
@@ -196,5 +198,25 @@ void MainWindow::on_pB_MouseSenseMinus_clicked()
 {
     if(ui->lE_MouseSense->text().toInt()-1>=1)
         ui->lE_MouseSense->setText(QString::number(ui->lE_MouseSense->text().toInt()-1));
+}
+
+
+void MainWindow::on_lE_ScrollSense_textChanged(const QString &arg1)
+{
+    scrollSense = arg1.toInt();
+}
+
+
+void MainWindow::on_pB_ScrollSense_clicked()
+{
+    if(ui->lE_ScrollSense->text().toInt()+1<=9)
+        ui->lE_ScrollSense->setText(QString::number(ui->lE_ScrollSense->text().toInt()+1));
+}
+
+
+void MainWindow::on_pB_ScrollSense_2_clicked()
+{
+    if(ui->lE_ScrollSense->text().toInt()-1>=1)
+        ui->lE_ScrollSense->setText(QString::number(ui->lE_ScrollSense->text().toInt()-1));
 }
 

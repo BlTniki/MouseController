@@ -32,9 +32,10 @@ private:
     quint16 nextBlockSize;
     quint16 messageType;
     QRegularExpressionValidator *mouseSenseValidator;
+    QRegularExpressionValidator *scrollSenseValidator;
     int oldMouseX = 0, oldMouseY = 0;
     int oldScrollY;
-    int mouseSense=1, scrollsense=1;
+    int mouseSense=1, scrollSense=1;
     enum MsgType{
         Mouse_pos = 1,
         Message = 2,
@@ -68,5 +69,8 @@ private slots:
     void on_lE_MouseSense_textChanged(const QString &arg1);
     void on_pB_MouseSensePlus_clicked();
     void on_pB_MouseSenseMinus_clicked();
+    void on_lE_ScrollSense_textChanged(const QString &arg1);
+    void on_pB_ScrollSense_clicked();
+    void on_pB_ScrollSense_2_clicked();
 };
 #endif // MAINWINDOW_H
