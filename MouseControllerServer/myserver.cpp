@@ -8,6 +8,11 @@ MyServer::MyServer()
     else{
         qDebug() << "error";
     }
+
+    UDPsocket = new QUdpSocket;
+    UDPsocket->bind(QHostAddress::Any, 2323);
+    connect(UDPsocket, &QUdpSocket::readyRead, this, &MyServer::slotReadyToReadUdp);
+    connect(UDPsocket, &QUdpSocket::disconnected, UDPsocket, &QUdpSocket::deleteLater);
 }
 
 /**
@@ -15,25 +20,24 @@ MyServer::MyServer()
  */
 void MyServer::incomingConnection(qintptr socketDescriptor)
 {
-    socket = new QTcpSocket;
-    socket->setSocketDescriptor(socketDescriptor);
-    connect(socket, &QTcpSocket::readyRead, this, &MyServer::slotReadyToRead);
-    connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
-    connect(socket, &QTcpSocket::disconnected, this, &MyServer::disconnectRecived);
+    TCPsocket = new QTcpSocket;
+    TCPsocket->setSocketDescriptor(socketDescriptor);
+    connect(TCPsocket, &QTcpSocket::readyRead, this, &MyServer::slotReadyToReadTcp);
+    connect(TCPsocket, &QTcpSocket::disconnected, TCPsocket, &QTcpSocket::deleteLater);
+    connect(TCPsocket, &QTcpSocket::disconnected, this, &MyServer::disconnectRecived);
 
-    Sockets.push_back(socket);
+    Sockets.push_back(TCPsocket);
     emit sendMes(QString("client connected %1").arg(socketDescriptor));
-
 }
 
-void MyServer::slotReadyToRead()
+void MyServer::slotReadyToReadTcp()
 {
     nextBlockSize = 0;
-    socket = (QTcpSocket*)sender();
-
+    TCPsocket = (QTcpSocket*)sender();
+    qDebug() << "TCP";
     QByteArray q;
-    qDebug() << socket->size();
-    q = socket->readAll();
+    qDebug() << TCPsocket->size();
+    q = TCPsocket->readAll();
     qDebug() << q;
 
     QDataStream in(q);
@@ -94,17 +98,84 @@ void MyServer::slotReadyToRead()
 
 }
 
+void MyServer::slotReadyToReadUdp()
+{
+    int c = 0;
+    UDPsocket = (QUdpSocket*)sender();
+    qDebug() << "UDP";
+    while (UDPsocket->hasPendingDatagrams()) {
+        nextBlockSize = 0;
+        QByteArray q;
+        qDebug() << UDPsocket->size();
+        q = UDPsocket->receiveDatagram().data();
+        qDebug() << q << c++;
+
+        QDataStream in(q);
+
+        in.setVersion(QDataStream::Qt_6_2);
+        QString str;
+
+        if(in.status() == QDataStream::Ok){
+            emit sendMes("reading...");
+            if(nextBlockSize == 0){
+                if(q.size() < 2){
+                    emit sendMes("Data < 2. error");
+                    break;
+                }
+                in >> nextBlockSize;
+                qDebug() << "nextBlockSize ==" << nextBlockSize;
+                if(q.size() < nextBlockSize){
+                    emit sendMes("Data not full, break");
+                    break;
+                }
+
+                in >> messageType;
+                str = "";
+                in >> str;
+                emit sendMes(QString("%1 %2").arg(str).arg(messageType));
+                qDebug() << str << messageType;
+                nextBlockSize = 0;
+                switch (messageType) {
+                case (Mouse_pos):
+                    MouseMove(str);
+                    break;
+                case (Mouse_Left_btn):
+                    MouseLeftClick(str);
+                    break;
+                case (Mouse_Middle_btn):
+                    MouseMiddleClick(str);
+                    break;
+                case (Mouse_Right_btn):
+                    MouseRightClick(str);
+                    break;
+                case (Scroll_move):
+                    ScrollMove(str);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+        else{
+            emit sendMes("DataStream error");
+            return;
+        }
+    }
+}
+
 void MyServer::disconnectRecived()
 {
-    emit sendMes("dissconected");
+    emit sendMes("Someone disconnected");
+
+    Sockets.removeOne((QTcpSocket*)sender());
 }
+
 
 /**
  * Block of input controll
  */
 void MyServer::MouseMove(QString str)
 {
-
     int dx=0,dy=0;
     for(int i=0, pos = 0; i<str.size(); i++){
         if(str[i] == 'x'){
