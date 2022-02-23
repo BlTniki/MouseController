@@ -1,28 +1,37 @@
-#ifndef MYSERVER_H
-#define MYSERVER_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#include <QTcpServer>
+#include <QMainWindow>
 #include <QTcpSocket>
 #include <QUdpSocket>
-#include <QNetworkDatagram>
-#include <QDebug>
-#include <QVector>
-#include <QIODevice>
-#include <windows.h>
+#include <QTouchEvent>
 
-class MyServer : public QTcpServer
+#include "sensearea.h"
+#include "scrollbar.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
 {
-    Q_OBJECT;
+    Q_OBJECT
+
 public:
-    MyServer();
-    QTcpSocket *TCPsocket;
-    QUdpSocket *UDPsocket;
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
 
 private:
-    QVector <QTcpSocket*> Sockets;
+    Ui::MainWindow *ui;
+    SenseArea *sa;
+    ScrollBar *sb;
+    QTcpSocket *TCPsocket;
+    QUdpSocket *UDPsocket;
     QByteArray data;
     quint16 nextBlockSize;
     quint16 messageType;
+    int oldMouseX = 0, oldMouseY = 0;
+    int oldScrollY;
     enum MsgType{
         Mouse_pos = 1,
         Message = 2,
@@ -31,20 +40,34 @@ private:
         Mouse_Right_btn = 5,
         Scroll_move = 6
     };
-    void MouseMove(QString str);
-    void MouseLeftClick(QString event);
-    void MouseMiddleClick(QString event);
-    void MouseRightClick(QString event);
-    void ScrollMove(QString str);
+    void SendToServer(MsgType type, QString str="");
+
+protected:
 
 public slots:
-    void incomingConnection(qintptr socketDescriptor);
-    void slotReadyToReadTcp();
-    void slotReadyToReadUdp();
-    void disconnectRecived();
+    void TouchMove(QTouchEvent *te);
+    void ClickDo(QString event);
+    void ScrollMove(QTouchEvent *te);
+    void connectResived();
+    void disconnectResived();
 
-signals:
-    void sendMes(QString);
+private slots:
+    void on_pB_Send_clicked();
+
+    void on_pB_Connect_clicked();
+
+    void on_pB_LeftClick_pressed();
+
+    void on_pB_LeftClick_released();
+
+    void on_pB_MiddleClick_pressed();
+
+    void on_pB_MiddleClick_released();
+
+    void on_pB_RightClick_pressed();
+
+    void on_pB_RightClick_released();
+
+
 };
-
-#endif // MYSERVER_H
+#endif // MAINWINDOW_H
