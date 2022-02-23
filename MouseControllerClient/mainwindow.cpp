@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->InputWindow->hide();
     ui->SettingsWindow->setGeometry(0, 0, ui->SettingsWindow->geometry().width(), ui->SettingsWindow->geometry().height());
     ui->SettingsWindow->hide();
+    mouseSenseValidator = new QRegularExpressionValidator(QRegularExpression("^[1-9]$"));
+    ui->lE_MouseSense->setValidator(mouseSenseValidator);
 
     sa = ui->senseArea;
     sb = ui->scrollBar;
@@ -93,7 +95,7 @@ void MainWindow::TouchMove(QTouchEvent *te)//sending a wish to change mouse posi
     int y = te->points()[0].position().y();
     int dx = x-oldMouseX, dy = y-oldMouseY;
 
-    QString str = QString("%1x%2y").arg(dx).arg(dy);
+    QString str = QString("%1x%2y").arg(dx*mouseSense).arg(dy*mouseSense);
     if(dx!=0||dy!=0){
         SendToServer(Mouse_pos, str);
     }
@@ -175,5 +177,24 @@ void MainWindow::on_pB_SettingsBack_clicked()
 {
     ui->SettingsWindow->hide();
     ui->InputWindow->show();
+}
+
+void MainWindow::on_lE_MouseSense_textChanged(const QString &arg1)
+{
+    mouseSense = arg1.toInt();
+}
+
+
+void MainWindow::on_pB_MouseSensePlus_clicked()
+{
+    if(ui->lE_MouseSense->text().toInt()+1<=10)
+        ui->lE_MouseSense->setText(QString::number(ui->lE_MouseSense->text().toInt()+1));
+}
+
+
+void MainWindow::on_pB_MouseSenseMinus_clicked()
+{
+    if(ui->lE_MouseSense->text().toInt()-1>=1)
+        ui->lE_MouseSense->setText(QString::number(ui->lE_MouseSense->text().toInt()-1));
 }
 

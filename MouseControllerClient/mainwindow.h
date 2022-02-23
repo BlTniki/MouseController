@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QUdpSocket>
 #include <QTouchEvent>
+#include <QRegularExpressionValidator>
 
 #include "sensearea.h"
 #include "scrollbar.h"
@@ -30,8 +31,10 @@ private:
     QByteArray data;
     quint16 nextBlockSize;
     quint16 messageType;
+    QRegularExpressionValidator *mouseSenseValidator;
     int oldMouseX = 0, oldMouseY = 0;
     int oldScrollY;
+    int mouseSense=1, scrollsense=1;
     enum MsgType{
         Mouse_pos = 1,
         Message = 2,
@@ -53,23 +56,17 @@ public slots:
 
 private slots:
     void on_pB_Send_clicked();
-
     void on_pB_Connect_clicked();
-
     void on_pB_LeftClick_pressed();
-
     void on_pB_LeftClick_released();
-
     void on_pB_MiddleClick_pressed();
-
     void on_pB_MiddleClick_released();
-
     void on_pB_RightClick_pressed();
-
     void on_pB_RightClick_released();
-
-
     void on_pB_Settings_clicked();
     void on_pB_SettingsBack_clicked();
+    void on_lE_MouseSense_textChanged(const QString &arg1);
+    void on_pB_MouseSensePlus_clicked();
+    void on_pB_MouseSenseMinus_clicked();
 };
 #endif // MAINWINDOW_H
