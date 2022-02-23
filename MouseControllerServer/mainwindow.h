@@ -1,41 +1,50 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MYSERVER_H
+#define MYSERVER_H
 
-#include <QMainWindow>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QUdpSocket>
+#include <QNetworkDatagram>
 #include <QDebug>
-#include <QApplication>
-#include <QCloseEvent>
-#include <QSystemTrayIcon>
-#include <QAction>
-#include <QStyle>
+#include <QVector>
+#include <QIODevice>
+#include <windows.h>
 
-#include "myserver.h"
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow
+class MyServer : public QTcpServer
 {
-    Q_OBJECT
-
+    Q_OBJECT;
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
-
-protected:
-void closeEvent(QCloseEvent * event);
+    MyServer();
+    QTcpSocket *TCPsocket;
+    QUdpSocket *UDPsocket;
 
 private:
-    Ui::MainWindow *ui;
-    MyServer *ms;
-    QSystemTrayIcon *trayIcon;
+    QVector <QTcpSocket*> Sockets;
+    QByteArray data;
+    quint16 nextBlockSize;
+    quint16 messageType;
+    enum MsgType{
+        Mouse_pos = 1,
+        Message = 2,
+        Mouse_Left_btn = 3,
+        Mouse_Middle_btn = 4,
+        Mouse_Right_btn = 5,
+        Scroll_move = 6
+    };
+    void MouseMove(QString str);
+    void MouseLeftClick(QString event);
+    void MouseMiddleClick(QString event);
+    void MouseRightClick(QString event);
+    void ScrollMove(QString str);
 
 public slots:
-    void reciveMes(QString str);
+    void incomingConnection(qintptr socketDescriptor);
+    void slotReadyToReadTcp();
+    void slotReadyToReadUdp();
+    void disconnectRecived();
 
-private slots:
-    void iconActivated(QSystemTrayIcon::ActivationReason reason);
-
+signals:
+    void sendMes(QString);
 };
-#endif // MAINWINDOW_H
+
+#endif // MYSERVER_H
