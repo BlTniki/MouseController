@@ -151,6 +151,9 @@ void MyServer::slotReadyToReadUdp()
                 case (Scroll_move):
                     ScrollMove(str);
                     break;
+                case (Change_Volume_Level):
+                    VolumeLevelChange(str);
+                    break;
                 default:
                     break;
                 }
@@ -243,5 +246,22 @@ void MyServer::MouseRightClick(QString event)
     else{
         emit sendMes("RightBTN Up");
         mouse_event (MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+    }
+}
+
+void MyServer::VolumeLevelChange(QString event)
+{
+    if(event == "+"){
+        //press and release
+        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    }
+    else if(event == "-"){
+        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    }
+    else{
+        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
     }
 }

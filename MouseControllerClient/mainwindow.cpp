@@ -243,3 +243,21 @@ void MainWindow::on_pB_ScrollSense_2_clicked()
         ui->lE_ScrollSense->setText(QString::number(ui->lE_ScrollSense->text().toInt()-1));
 }
 
+
+void MainWindow::on_pB_VolumePlus_clicked()
+{
+    SendToServer(Change_Volume_Level, "+");
+}
+
+
+void MainWindow::on_pB_VolumeMinus_clicked()
+{
+    SendToServer(Change_Volume_Level, "-");
+}
+
+
+void MainWindow::on_pB_VolumeMute_clicked()
+{
+    SendToServer(Change_Volume_Level, "m");
+}
+

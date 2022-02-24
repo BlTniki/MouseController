@@ -3,6 +3,8 @@
 
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QUdpSocket>
+#include <QNetworkDatagram>
 #include <QDebug>
 #include <QVector>
 #include <QIODevice>
@@ -13,7 +15,8 @@ class MyServer : public QTcpServer
     Q_OBJECT;
 public:
     MyServer();
-    QTcpSocket *socket;
+    QTcpSocket *TCPsocket;
+    QUdpSocket *UDPsocket;
 
 private:
     QVector <QTcpSocket*> Sockets;
@@ -26,22 +29,24 @@ private:
         Mouse_Left_btn = 3,
         Mouse_Middle_btn = 4,
         Mouse_Right_btn = 5,
-        Scroll_move = 6
+        Scroll_move = 6,
+        Change_Volume_Level = 7
     };
     void MouseMove(QString str);
     void MouseLeftClick(QString event);
     void MouseMiddleClick(QString event);
     void MouseRightClick(QString event);
     void ScrollMove(QString str);
+    void VolumeLevelChange(QString event);
 
 public slots:
     void incomingConnection(qintptr socketDescriptor);
-    void slotReadyToRead();
+    void slotReadyToReadTcp();
+    void slotReadyToReadUdp();
     void disconnectRecived();
 
 signals:
     void sendMes(QString);
-    void RenameME();
 };
 
 #endif // MYSERVER_H

@@ -47,7 +47,8 @@ private:
         Mouse_Left_btn = 3,
         Mouse_Middle_btn = 4,
         Mouse_Right_btn = 5,
-        Scroll_move = 6
+        Scroll_move = 6,
+        Change_Volume_Level = 7
     };
     void SendToServer(MsgType type, QString str="");
 
@@ -77,5 +78,8 @@ private slots:
     void on_lE_ScrollSense_textChanged(const QString &arg1);
     void on_pB_ScrollSense_clicked();
     void on_pB_ScrollSense_2_clicked();
+    void on_pB_VolumePlus_clicked();
+    void on_pB_VolumeMinus_clicked();
+    void on_pB_VolumeMute_clicked();
 };
 #endif // MAINWINDOW_H
