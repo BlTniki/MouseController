@@ -85,6 +85,7 @@ void MainWindow::disconnectResived()// Blocking all objects, that communicate wi
 {
     ui->ConnectWindow->show();
     ui->InputWindow->hide();
+    ui->SettingsWindow->hide();
 }
 
 void MainWindow::SendToServer(MsgType type, QString str)// Sending to server str and MsgType
