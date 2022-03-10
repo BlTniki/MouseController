@@ -1004,7 +1004,14 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1,1">
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,0,1">
+          <item>
+           <widget class="QPushButton" name="pB_VolumeMinus">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QPushButton" name="pB_VolumeMute">
             <property name="sizePolicy">
@@ -1015,19 +1022,12 @@
             </property>
             <property name="maximumSize">
              <size>
-              <width>41</width>
+              <width>48</width>
               <height>16777215</height>
              </size>
             </property>
             <property name="text">
              <string>Mute</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pB_VolumeMinus">
-            <property name="text">
-             <string>-</string>
             </property>
            </widget>
           </item>

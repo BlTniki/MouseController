@@ -1,0 +1,6 @@
+
+*.user
+MouseControllerClient/android/
+*.jpg
+*.ico
+*.rc

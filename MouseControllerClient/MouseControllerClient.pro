@@ -42,5 +42,4 @@ contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
         $$PWD/android
 }
 
-RESOURCES += \
-    res.qrc
+RESOURCES +=

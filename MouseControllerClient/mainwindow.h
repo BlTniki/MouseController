@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QFile>
 
+
 #include "sensearea.h"
 #include "scrollbar.h"
 

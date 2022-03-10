@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     SettingsStates["mouseSense"] = QString("%1").arg(mouseSense);
-    SettingsStates["scrollSense"] = QString("%1").arg(mouseSense);
+    SettingsStates["scrollSense"] = QString("%1").arg(scrollSense);
     QJsonDocument doc(SettingsStates);
     QString jsonString = doc.toJson(QJsonDocument::Indented);
     SettingsSaves.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -52,7 +52,6 @@ MainWindow::~MainWindow()
     SettingsSaves.close();
     delete ui;
 }
-
 
 void MainWindow::on_pB_Send_clicked()
 {
@@ -260,4 +259,3 @@ void MainWindow::on_pB_VolumeMute_clicked()
 {
     SendToServer(Change_Volume_Level, "m");
 }
-
