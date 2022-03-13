@@ -21,7 +21,7 @@ public:
         MouseMovement,
         MouseInputBtn,
         Message,
-        Change_Volume_Level
+        ChangeVolumeLevel
     };
     enum MouseMovementType{
         CursorMovement,
@@ -35,9 +35,10 @@ public:
         MouseMiddleClick = 0x08,
         MouseRightClick = 0x10
     };
-    enum KeyboardInputBtnType{
-        KeyUp = 0x00,
-        KeyDown = 0x01,
+    enum VolumeLevelChangeType{
+        VolumeLevelUp = 0x02,
+        VolumeLevelDown = 0x04,
+        VolumeLevelMute = 0x08
     };
 
 private:
@@ -45,9 +46,6 @@ private:
     QByteArray data;
     quint16 nextBlockSize;
     quint16 messageType;
-
-
-    void VolumeLevelChange(QString event);
 
 public slots:
     void incomingConnection(qintptr socketDescriptor);
@@ -57,6 +55,8 @@ public slots:
 
 signals:
     void sendMes(QString);
+    void sendStringPast(QString);
+    void sendVolumeLevelChanges(VolumeLevelChangeType);
     void sendMouseMovement(MyServer::MouseMovementType, QString);
     void sendMouseBtnInput(MyServer::MouseInputBtnType);
 };

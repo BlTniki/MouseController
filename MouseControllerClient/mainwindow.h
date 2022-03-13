@@ -46,7 +46,7 @@ private:
         MouseMovement,
         MouseInputBtn,
         Message,
-        Change_Volume_Level
+        ChangeVolumeLevel
     };
     enum MouseMovementType{
         CursorMovement,
@@ -59,6 +59,11 @@ private:
         MouseLeftTap = 0x04,
         MouseMiddleClick = 0x08,
         MouseRightClick = 0x10
+    };
+    enum VolumeLevelChangeType{
+        VolumeLevelUp = 0x02,
+        VolumeLevelDown = 0x04,
+        VolumeLevelMute = 0x08
     };
     void SendToServerUDP(quint16 msgType, quint16 msg, QString str="");
     void SendToServerTCP(quint16 msgType, quint16 msg, QString str="");

@@ -201,6 +201,23 @@ void MainWindow::on_pB_RightClick_released()
     SendToServerTCP(MouseInputBtn, MouseRightClick);
 }
 
+void MainWindow::on_pB_VolumePlus_clicked()
+{
+    SendToServerTCP(ChangeVolumeLevel, VolumeLevelUp);
+}
+
+
+void MainWindow::on_pB_VolumeMinus_clicked()
+{
+    SendToServerTCP(ChangeVolumeLevel, VolumeLevelDown);
+}
+
+
+void MainWindow::on_pB_VolumeMute_clicked()
+{
+    SendToServerTCP(ChangeVolumeLevel, VolumeLevelMute);
+}
+
 
 /**
  * Block of settings
@@ -258,19 +275,4 @@ void MainWindow::on_pB_ScrollSense_2_clicked()
 }
 
 
-void MainWindow::on_pB_VolumePlus_clicked()
-{
-    SendToServerTCP(Change_Volume_Level, 0, "+");
-}
 
-
-void MainWindow::on_pB_VolumeMinus_clicked()
-{
-    SendToServerTCP(Change_Volume_Level, 0,"-");
-}
-
-
-void MainWindow::on_pB_VolumeMute_clicked()
-{
-    SendToServerTCP(Change_Volume_Level, 0, "m");
-}

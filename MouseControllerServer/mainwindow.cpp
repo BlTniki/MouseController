@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ms, &MyServer::sendMes, this, &MainWindow::reciveMes);
     connect(ms, &MyServer::sendMouseMovement , this, &MainWindow::reciveMouseMovement);
     connect(ms, &MyServer::sendMouseBtnInput , this, &MainWindow::reciveMouseBtnInput);
+    connect(ms, &MyServer::sendStringPast , this, &MainWindow::reciveStringPast);
+    connect(ms, &MyServer::sendVolumeLevelChanges , this, &MainWindow::reciveVolumeLevelChanges);
+
 
     /* Initialize the tray icon, set the icon from the system icon set,
      * and also set a tooltip
@@ -193,5 +196,73 @@ void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
     }
     default:
         reciveMes("MouseBtnInput ERROR");
+    }
+}
+
+void MainWindow::reciveStringPast(QString str)
+{
+    reciveMes("Pasting recived message");
+    if(!OpenClipboard(0)){
+        reciveMes("Cant open Clipboard");
+        CloseClipboard();
+        return;
+    }
+    if(!EmptyClipboard()){
+        reciveMes("Cant empty Clipboard");
+        CloseClipboard();
+        return;
+    }
+    const QChar *unicodeStr = str.unicode();
+    const size_t amountOfBytes = (str.size()+1) * sizeof(QChar);
+    HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE, amountOfBytes);
+    if(h == nullptr){
+        reciveMes("Cant GlobalAlloc");
+        GlobalFree(h);
+        CloseClipboard();
+        return;
+    }
+    memcpy(GlobalLock(h), unicodeStr, amountOfBytes);
+    if(GlobalUnlock(h)){
+        reciveMes("Cant GlobalUnlock");
+        GlobalFree(h);
+        CloseClipboard();
+        return;
+    }
+    SetClipboardData(CF_UNICODETEXT, h);
+    if(!CloseClipboard()){
+        reciveMes("Cant close Clipboard");
+        GlobalFree(h);
+        return;
+    }
+    GlobalFree(h);
+
+    keybd_event( VK_CONTROL, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+    keybd_event( 0x56, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+
+    keybd_event( 0x56, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    keybd_event( VK_CONTROL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+}
+
+void MainWindow::reciveVolumeLevelChanges(MyServer::VolumeLevelChangeType msgType)
+{
+    switch(msgType){
+    case (MyServer::VolumeLevelUp):{
+        //press and release
+        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        break;
+    }
+    case (MyServer::VolumeLevelDown):{
+        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        break;
+    }
+    case (MyServer::VolumeLevelMute):{
+        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        break;
+    }
+    default:
+        reciveMes("VolumeLevelChanges ERROR");
     }
 }

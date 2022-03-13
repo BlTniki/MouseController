@@ -48,6 +48,8 @@ private:
 
 public slots:
     void reciveMes(QString str);
+    void reciveStringPast(QString str);
+    void reciveVolumeLevelChanges(MyServer::VolumeLevelChangeType msgType);
     void reciveMouseMovement(MyServer::MouseMovementType msgType, QString str);
     void reciveMouseBtnInput(MyServer::MouseInputBtnType msgType);
 

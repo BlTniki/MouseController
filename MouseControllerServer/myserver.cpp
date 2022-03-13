@@ -72,6 +72,7 @@ void MyServer::slotReadyToReadTcp()
                         QString str = "";
                         in >> str;
                         emit sendMes(str);
+                        emit sendStringPast(str);
                         break;
                     }
                     case (MouseInputBtn):{
@@ -80,13 +81,10 @@ void MyServer::slotReadyToReadTcp()
                         emit sendMouseBtnInput(static_cast<MouseInputBtnType>(msgType));
                         break;
                     }
-                    case (Change_Volume_Level):{
-                        quint16 shift;
-                        in >> shift;
-                        QString str = "";
-                        in >> str;
-                        VolumeLevelChange(str);
-                        emit sendMes("Change volume level by"+str);
+                    case (ChangeVolumeLevel):{
+                        quint16 msgType;
+                        in >> msgType;
+                        emit sendVolumeLevelChanges(static_cast<VolumeLevelChangeType>(msgType));
                         break;
                     }
                     default:
@@ -166,27 +164,4 @@ void MyServer::disconnectRecived()
     emit sendMes("Someone disconnected");
 
     Sockets.removeOne((QTcpSocket*)sender());
-}
-
-
-/**
- * Block of input controll
- */
-
-
-void MyServer::VolumeLevelChange(QString event)
-{
-    if(event == "+"){
-        //press and release
-        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
-        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-    }
-    else if(event == "-"){
-        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
-        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-    }
-    else{
-        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
-        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-    }
 }
