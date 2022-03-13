@@ -24,19 +24,24 @@ private:
     quint16 nextBlockSize;
     quint16 messageType;
     enum MsgType{
-        Mouse_pos = 1,
-        Message = 2,
-        Mouse_Left_btn = 3,
-        Mouse_Middle_btn = 4,
-        Mouse_Right_btn = 5,
-        Scroll_move = 6,
-        Change_Volume_Level = 7
+        MouseMovement,
+        MouseInputBtn,
+        Message,
+        Change_Volume_Level
     };
-    void MouseMove(QString str);
-    void MouseLeftClick(QString event);
-    void MouseMiddleClick(QString event);
-    void MouseRightClick(QString event);
-    void ScrollMove(QString str);
+    enum MouseMovementType{
+        CursorMovement,
+        ScrollMovement
+    };
+    enum MouseInputBtnType{
+        KeyUp = 0x00,
+        KeyDown = 0x01,
+        MouseLeftClick = 0x02,
+        MouseLeftDClick = 0x04,
+        MouseMiddleClick = 0x08,
+        MouseRightClick = 0x10
+    };
+
     void VolumeLevelChange(QString event);
 
 public slots:
@@ -47,6 +52,8 @@ public slots:
 
 signals:
     void sendMes(QString);
+    void sendMouseMovement(MouseMovementType, QString);
+    void sendMouseBtnInput(MouseInputBtnType);
 };
 
 #endif // MYSERVER_H

@@ -11,7 +11,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle("MouseController");
     ms = new MyServer;
 
+    //connect signals between MainWindow and Server
     connect(ms, &MyServer::sendMes, this, &MainWindow::reciveMes);
+    connect(ms, &MyServer::sendMouseMovement , this, &MainWindow::reciveMouseMovement);
+    connect(ms, &MyServer::sendMouseBtnInput , this, &MainWindow::reciveMouseBtnInput);
 
     /* Initialize the tray icon, set the icon from the system icon set,
      * and also set a tooltip
@@ -91,4 +94,127 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
 void MainWindow::reciveMes(QString str)
 {
     ui->textBrowser->append(str);
+}
+
+
+/**
+ * Block of input controll
+ */
+void MainWindow::reciveMouseMovement(MouseMovementType msgType, QString str)
+{
+    switch (msgType) {
+    case (CursorMovement):
+        CursorMove(str);
+        break;
+    case (ScrollMovement):
+        ScrollMove(str);
+        break;
+    default:
+        reciveMes("MouseMovement ERROR");
+    }
+}
+
+void MainWindow::CursorMove(QString str)
+{
+    int dx=0,dy=0;
+    for(int i=0, pos = 0; i<str.size(); i++){
+        if(str[i] == 'x'){
+            dx = str.mid(pos,i-pos).toInt();
+            pos = i+1;
+        }
+        if(str[i] == 'y'){
+            dy = str.mid(pos, i-pos).toInt();
+        }
+    }
+    reciveMes(QString("x %1 y %2").arg(dx).arg(dy));
+
+    POINT p;
+    GetCursorPos(&p);
+    SetCursorPos(p.x+dx, p.y+dy);
+}
+
+void MainWindow::ScrollMove(QString str)
+{
+    int dy=0;
+    for(int i=0, pos = 0; i<str.size(); i++){
+        if(str[i] == 'y'){
+            dy = str.mid(pos,i-pos).toInt();
+            pos = i+1;
+        }
+    }
+    reciveMes(QString("y %1").arg(dy));
+
+    mouse_event (MOUSEEVENTF_WHEEL, 0, 0, (-1)*dy*10, 0);
+}
+
+void MainWindow::reciveMouseBtnInput(MouseInputBtnType msgType)
+{
+    // ~(~msgType|0x01) так как в последем бите хранится указание, что именно делать с кнопкой, на этом этапе мы её игнорируем
+    switch (~(~msgType|0x01)) {
+    case (MouseLeftClick):{
+        if (msgType&0x01){
+            reciveMes("LeftBTN Down");
+            mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        }
+        else{
+            reciveMes("LeftBTN Up");
+            mouse_event (MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        }
+        break;
+    }
+    case (MouseLeftDClick):{
+            reciveMes("LeftBTN Double Click");
+            mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event (MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event (MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            break;
+        }
+    case (MouseMiddleClick):{
+        if (msgType&0x01){
+            reciveMes("MiddleBTN Down");
+            mouse_event (MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
+        }
+        else{
+            reciveMes("MiddleBTN Up");
+            mouse_event (MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0);
+        }
+        break;
+    }
+    case (MouseRightClick):{
+        if (msgType&0x01){
+            reciveMes("RightBTN Down");
+            mouse_event (MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+        }
+        else{
+            reciveMes("RightBTN Up");
+            mouse_event (MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+        }
+        break;
+    }
+    default:
+        reciveMes("MouseBtnInput ERROR");
+    }
+}
+
+
+
+
+
+
+void MyServer::VolumeLevelChange(QString event)
+{
+    if(event == "+"){
+        //press and release
+        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    }
+    else if(event == "-"){
+        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    }
+    else{
+        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
+        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+    }
 }
