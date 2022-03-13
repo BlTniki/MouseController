@@ -31,7 +31,7 @@ public:
         KeyUp = 0x00,
         KeyDown = 0x01,
         MouseLeftClick = 0x02,
-        MouseLeftDClick = 0x04,
+        MouseLeftTap = 0x04,
         MouseMiddleClick = 0x08,
         MouseRightClick = 0x10
     };

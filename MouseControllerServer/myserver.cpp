@@ -75,9 +75,9 @@ void MyServer::slotReadyToReadTcp()
                         break;
                     }
                     case (MouseInputBtn):{
-                        MouseInputBtnType msgType;
+                        quint16 msgType;
                         in >> msgType;
-                        emit sendMouseBtnInput(msgType);
+                        emit sendMouseBtnInput(static_cast<MouseInputBtnType>(msgType));
                         break;
                     }
                     case (Change_Volume_Level):{
@@ -90,7 +90,7 @@ void MyServer::slotReadyToReadTcp()
                         break;
                     }
                     default:
-                        emit sendMes("Read TCP ERROR");
+                        //emit sendMes("Read TCP ERROR");
                         break;
                     }
                 }
@@ -140,11 +140,11 @@ void MyServer::slotReadyToReadUdp()
 
                 switch (messageType) {
                 case (MouseMovement):{
-                    MouseMovementType movementType;
+                    quint16 movementType;
                     in >> movementType;
                     str = "";
                     in >> str;
-                    emit sendMouseMovement(movementType, str);
+                    emit sendMouseMovement(static_cast<MouseMovementType>(movementType), str);
                     break;
                 }
 

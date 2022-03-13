@@ -1048,10 +1048,6 @@
    <zorder>InputWindow</zorder>
    <zorder>ConnectWindow</zorder>
    <zorder>SettingsWindow</zorder>
-   <zorder>l_VolumeLevel</zorder>
-   <zorder>pB_VolumeMute</zorder>
-   <zorder>pB_VolumeMinus</zorder>
-   <zorder>pB_VolumePlus</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

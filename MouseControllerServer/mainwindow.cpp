@@ -162,12 +162,11 @@ void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
         }
         break;
     }
-    case (MyServer::MouseLeftDClick):{
-            reciveMes("LeftBTN Double Click");
+    case (MyServer::MouseLeftTap):{
+            reciveMes("LeftBTN Double Tap");
             mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
             mouse_event (MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-            mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-            mouse_event (MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
             break;
         }
     case (MyServer::MouseMiddleClick):{
