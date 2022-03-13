@@ -56,7 +56,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pB_Send_clicked()
 {
     QString str = QString("%2").arg(ui->lE_ToSend->text());
-    SendToServer(Message, str);
+    SendToServerTCP(Message, quint16(0), str);
 }
 
 
@@ -87,14 +87,28 @@ void MainWindow::disconnectResived()// Blocking all objects, that communicate wi
     ui->SettingsWindow->hide();
 }
 
-void MainWindow::SendToServer(MsgType type, QString str)// Sending to server str and MsgType
+void MainWindow::SendToServerTCP(quint16 msgType, quint16 msg, QString str)
 {
     data.clear();
     QDataStream out(&data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
 
     //in this part we write block that contain message size. first we write a block whis 0, after message constructed, we rewrite this block
-    out << quint16(0) << quint16(type) << str;
+    out << quint16(0) << msgType << msg << str;
+    out.device()->seek(0);
+    out << quint16(data.size()-sizeof(quint16));
+    qDebug() << "Send" << data.size()-sizeof(quint16) << msgType << msg << str;
+    TCPsocket->write(data);
+}
+
+void MainWindow::SendToServerUDP(quint16 msgType, quint16 msg, QString str)
+{
+    data.clear();
+    QDataStream out(&data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_6_2);
+
+    //in this part we write block that contain message size. first we write a block whis 0, after message constructed, we rewrite this block
+    out << quint16(0) << msgType << msg << str;
     out.device()->seek(0);
     out << quint16(data.size()-sizeof(quint16));
 
@@ -121,14 +135,14 @@ void MainWindow::TouchMove(QTouchEvent *te)//sending a wish to change mouse posi
 
     QString str = QString("%1x%2y").arg(dx*mouseSense).arg(dy*mouseSense);
     if(dx!=0||dy!=0){
-        SendToServer(Mouse_pos, str);
+        SendToServerUDP(MouseMovement, CursorMovement, str);
     }
     oldMouseX = x; oldMouseY = y;
 }
 
-void MainWindow::ClickDo(QString event)//send a click if tap in senseArea recived
+void MainWindow::ClickDo()//send a click if tap in senseArea recived
 {
-    SendToServer(Mouse_Left_btn, event);
+    SendToServerTCP(MouseInputBtn, MouseLeftTap);
 }
 
 void MainWindow::ScrollMove(QTouchEvent *te)//sending a wish to turn the weel, pretty important thats we send a change touch position not just position
@@ -144,7 +158,7 @@ void MainWindow::ScrollMove(QTouchEvent *te)//sending a wish to turn the weel, p
     QString str = QString("%1y").arg(dy*scrollSense);
     qDebug() << dy << str;
     if(dy!=0){
-        SendToServer(Scroll_move, str);
+        SendToServerUDP(MouseMovement, ScrollMovement, str);
     }
     oldScrollY = y;
 }
@@ -154,36 +168,37 @@ void MainWindow::ScrollMove(QTouchEvent *te)//sending a wish to turn the weel, p
 */
 void MainWindow::on_pB_LeftClick_pressed()
 {
-    SendToServer(Mouse_Left_btn, "d");
+    qDebug() << MouseInputBtn << (MouseLeftClick|0x01);
+    SendToServerTCP(MouseInputBtn, MouseLeftClick|0x01);
 }
 
 
 void MainWindow::on_pB_LeftClick_released()
 {
-    SendToServer(Mouse_Left_btn, "u");
+    SendToServerTCP(MouseInputBtn, MouseLeftClick);
 }
 
 void MainWindow::on_pB_MiddleClick_pressed()
 {
-    SendToServer(Mouse_Middle_btn, "d");
+    SendToServerTCP(MouseInputBtn, MouseMiddleClick|0x01);
 }
 
 
 void MainWindow::on_pB_MiddleClick_released()
 {
-    SendToServer(Mouse_Middle_btn, "u");
+    SendToServerTCP(MouseInputBtn, MouseMiddleClick);
 }
 
 
 void MainWindow::on_pB_RightClick_pressed()
 {
-    SendToServer(Mouse_Right_btn, "d");
+    SendToServerTCP(MouseInputBtn, MouseRightClick|0x01);
 }
 
 
 void MainWindow::on_pB_RightClick_released()
 {
-    SendToServer(Mouse_Right_btn, "u");
+    SendToServerTCP(MouseInputBtn, MouseRightClick);
 }
 
 
@@ -245,17 +260,17 @@ void MainWindow::on_pB_ScrollSense_2_clicked()
 
 void MainWindow::on_pB_VolumePlus_clicked()
 {
-    SendToServer(Change_Volume_Level, "+");
+    SendToServerTCP(Change_Volume_Level, 0, "+");
 }
 
 
 void MainWindow::on_pB_VolumeMinus_clicked()
 {
-    SendToServer(Change_Volume_Level, "-");
+    SendToServerTCP(Change_Volume_Level, 0,"-");
 }
 
 
 void MainWindow::on_pB_VolumeMute_clicked()
 {
-    SendToServer(Change_Volume_Level, "m");
+    SendToServerTCP(Change_Volume_Level, 0, "m");
 }
