@@ -86,6 +86,7 @@ void MyServer::slotReadyToReadTcp()
                         QString str = "";
                         in >> str;
                         VolumeLevelChange(str);
+                        emit sendMes("Change volume level by"+str);
                         break;
                     }
                     default:

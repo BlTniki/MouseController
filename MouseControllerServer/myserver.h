@@ -17,12 +17,6 @@ public:
     MyServer();
     QTcpSocket *TCPsocket;
     QUdpSocket *UDPsocket;
-
-private:
-    QVector <QTcpSocket*> Sockets;
-    QByteArray data;
-    quint16 nextBlockSize;
-    quint16 messageType;
     enum MsgType{
         MouseMovement,
         MouseInputBtn,
@@ -42,6 +36,13 @@ private:
         MouseRightClick = 0x10
     };
 
+private:
+    QVector <QTcpSocket*> Sockets;
+    QByteArray data;
+    quint16 nextBlockSize;
+    quint16 messageType;
+
+
     void VolumeLevelChange(QString event);
 
 public slots:
@@ -52,8 +53,8 @@ public slots:
 
 signals:
     void sendMes(QString);
-    void sendMouseMovement(MouseMovementType, QString);
-    void sendMouseBtnInput(MouseInputBtnType);
+    void sendMouseMovement(MyServer::MouseMovementType, QString);
+    void sendMouseBtnInput(MyServer::MouseInputBtnType);
 };
 
 #endif // MYSERVER_H

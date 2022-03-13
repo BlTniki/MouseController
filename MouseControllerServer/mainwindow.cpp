@@ -100,13 +100,13 @@ void MainWindow::reciveMes(QString str)
 /**
  * Block of input controll
  */
-void MainWindow::reciveMouseMovement(MouseMovementType msgType, QString str)
+void MainWindow::reciveMouseMovement(MyServer::MouseMovementType msgType, QString str)
 {
     switch (msgType) {
-    case (CursorMovement):
+    case (MyServer::CursorMovement):
         CursorMove(str);
         break;
-    case (ScrollMovement):
+    case (MyServer::ScrollMovement):
         ScrollMove(str);
         break;
     default:
@@ -147,11 +147,11 @@ void MainWindow::ScrollMove(QString str)
     mouse_event (MOUSEEVENTF_WHEEL, 0, 0, (-1)*dy*10, 0);
 }
 
-void MainWindow::reciveMouseBtnInput(MouseInputBtnType msgType)
+void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
 {
     // ~(~msgType|0x01) так как в последем бите хранится указание, что именно делать с кнопкой, на этом этапе мы её игнорируем
     switch (~(~msgType|0x01)) {
-    case (MouseLeftClick):{
+    case (MyServer::MouseLeftClick):{
         if (msgType&0x01){
             reciveMes("LeftBTN Down");
             mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
@@ -162,7 +162,7 @@ void MainWindow::reciveMouseBtnInput(MouseInputBtnType msgType)
         }
         break;
     }
-    case (MouseLeftDClick):{
+    case (MyServer::MouseLeftDClick):{
             reciveMes("LeftBTN Double Click");
             mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
             mouse_event (MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
@@ -170,7 +170,7 @@ void MainWindow::reciveMouseBtnInput(MouseInputBtnType msgType)
             mouse_event (MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
             break;
         }
-    case (MouseMiddleClick):{
+    case (MyServer::MouseMiddleClick):{
         if (msgType&0x01){
             reciveMes("MiddleBTN Down");
             mouse_event (MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
@@ -181,7 +181,7 @@ void MainWindow::reciveMouseBtnInput(MouseInputBtnType msgType)
         }
         break;
     }
-    case (MouseRightClick):{
+    case (MyServer::MouseRightClick):{
         if (msgType&0x01){
             reciveMes("RightBTN Down");
             mouse_event (MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
@@ -194,27 +194,5 @@ void MainWindow::reciveMouseBtnInput(MouseInputBtnType msgType)
     }
     default:
         reciveMes("MouseBtnInput ERROR");
-    }
-}
-
-
-
-
-
-
-void MyServer::VolumeLevelChange(QString event)
-{
-    if(event == "+"){
-        //press and release
-        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
-        keybd_event( VK_VOLUME_UP, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-    }
-    else if(event == "-"){
-        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
-        keybd_event( VK_VOLUME_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-    }
-    else{
-        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);
-        keybd_event( VK_VOLUME_MUTE, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
     }
 }
