@@ -168,8 +168,8 @@ void MainWindow::ScrollMove(QTouchEvent *te)//sending a wish to turn the weel, p
 */
 void MainWindow::on_pB_LeftClick_pressed()
 {
-    qDebug() << MouseInputBtn << (MouseLeftClick|0x01);
-    SendToServerTCP(MouseInputBtn, MouseLeftClick|0x01);
+    qDebug() << MouseInputBtn << (MouseLeftClick|MouseKeyDown);
+    SendToServerTCP(MouseInputBtn, MouseLeftClick|MouseKeyDown);
 }
 
 
@@ -180,7 +180,7 @@ void MainWindow::on_pB_LeftClick_released()
 
 void MainWindow::on_pB_MiddleClick_pressed()
 {
-    SendToServerTCP(MouseInputBtn, MouseMiddleClick|0x01);
+    SendToServerTCP(MouseInputBtn, MouseMiddleClick|MouseKeyDown);
 }
 
 
@@ -192,7 +192,7 @@ void MainWindow::on_pB_MiddleClick_released()
 
 void MainWindow::on_pB_RightClick_pressed()
 {
-    SendToServerTCP(MouseInputBtn, MouseRightClick|0x01);
+    SendToServerTCP(MouseInputBtn, MouseRightClick|MouseKeyDown);
 }
 
 

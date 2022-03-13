@@ -53,8 +53,8 @@ private:
         ScrollMovement
     };
     enum MouseInputBtnType{
-        KeyUp = 0x00,
-        KeyDown = 0x01,
+        MouseKeyUp = 0x00,
+        MouseKeyDown = 0x01,
         MouseLeftClick = 0x02,
         MouseLeftTap = 0x04,
         MouseMiddleClick = 0x08,

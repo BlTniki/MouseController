@@ -149,10 +149,10 @@ void MainWindow::ScrollMove(QString str)
 
 void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
 {
-    // ~(~msgType|0x01) так как в последем бите хранится указание, что именно делать с кнопкой, на этом этапе мы её игнорируем
-    switch (~(~msgType|0x01)) {
+    // ~(~msgType|KeyDown) так как в последем бите хранится указание, что именно делать с кнопкой, на этом этапе мы её игнорируем
+    switch (~(~msgType|MyServer::MouseKeyDown)) {
     case (MyServer::MouseLeftClick):{
-        if (msgType&0x01){
+        if (msgType&MyServer::MouseKeyDown){
             reciveMes("LeftBTN Down");
             mouse_event (MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
         }
@@ -170,7 +170,7 @@ void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
             break;
         }
     case (MyServer::MouseMiddleClick):{
-        if (msgType&0x01){
+        if (msgType&MyServer::MouseKeyDown){
             reciveMes("MiddleBTN Down");
             mouse_event (MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0);
         }
@@ -181,7 +181,7 @@ void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
         break;
     }
     case (MyServer::MouseRightClick):{
-        if (msgType&0x01){
+        if (msgType&MyServer::MouseKeyDown){
             reciveMes("RightBTN Down");
             mouse_event (MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
         }
