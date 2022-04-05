@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ms, &MyServer::sendMes, this, &MainWindow::reciveMes);
     connect(ms, &MyServer::sendMouseMovement , this, &MainWindow::reciveMouseMovement);
     connect(ms, &MyServer::sendMouseBtnInput , this, &MainWindow::reciveMouseBtnInput);
+    connect(ms, &MyServer::sendKeyboardBtnInput , this, &MainWindow::reciveKeyboardBtnInput);
     connect(ms, &MyServer::sendStringPast , this, &MainWindow::reciveStringPast);
     connect(ms, &MyServer::sendVolumeLevelChanges , this, &MainWindow::reciveVolumeLevelChanges);
 
@@ -152,8 +153,8 @@ void MainWindow::ScrollMove(QString str)
 
 void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
 {
-    // ~(~msgType|KeyDown) так как в последем бите хранится указание, что именно делать с кнопкой, на этом этапе мы её игнорируем
-    switch (~(~msgType|MyServer::MouseKeyDown)) {
+
+    switch (~(~msgType|MyServer::MouseKeyDown)) { // ~(~msgType|KeyDown) так как в последем бите хранится указание, что именно делать с кнопкой, на этом этапе мы её игнорируем
     case (MyServer::MouseLeftClick):{
         if (msgType&MyServer::MouseKeyDown){
             reciveMes("LeftBTN Down");
@@ -196,6 +197,136 @@ void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
     }
     default:
         reciveMes("MouseBtnInput ERROR");
+    }
+}
+
+void MainWindow::reciveKeyboardBtnInput(MyServer::KeyboardInputBtnType msgType)
+{
+    switch (~(~msgType|MyServer::KeyboardKeyPress)) { // ~(~msgType|MyServer::KeyboardKeyPress) так как в последем бите хранится указание, что именно делать с кнопкой, на этом этапе мы её игнорируем
+    case (MyServer::KeyboardKeyUp):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyUp Press");
+            keybd_event( VK_UP, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyUp Release");
+            keybd_event( VK_UP, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyDown):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyDown Press");
+            keybd_event( VK_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyDown Release");
+            keybd_event( VK_DOWN, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyLeft):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyLeft Press");
+            keybd_event( VK_LEFT, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyLeft Release");
+            keybd_event( VK_LEFT, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyRight):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyRight Press");
+            keybd_event( VK_RIGHT, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyRight Release");
+            keybd_event( VK_RIGHT, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+
+    case (MyServer::KeyboardKeyEsc):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyEsc Press");
+            keybd_event( VK_ESCAPE, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyEsc Release");
+            keybd_event( VK_ESCAPE, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyTab):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyTab Press");
+            keybd_event( VK_TAB, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyTab Release");
+            keybd_event( VK_TAB, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyCaps):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyCaps Press");
+            keybd_event( VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyCaps Release");
+            keybd_event( VK_CAPITAL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyShift):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyShift Press");
+            keybd_event( VK_SHIFT, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyShift Release");
+            keybd_event( VK_SHIFT, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyCtrl):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyCtrl Press");
+            keybd_event( VK_CONTROL, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyCtrl Release");
+            keybd_event( VK_CONTROL, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyWin):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyWin Press");
+            keybd_event( VK_LWIN, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyWin Release");
+            keybd_event( VK_LWIN, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    case (MyServer::KeyboardKeyAlt):{
+        if (msgType&MyServer::KeyboardKeyPress){
+            reciveMes("KeyAlt Press");
+                keybd_event( VK_MENU, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0);;
+        }
+        else{
+            reciveMes("KeyAlt Release");
+            keybd_event( VK_MENU, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+        }
+        break;
+    }
+    default:
+        reciveMes("KeyboardBtnInput ERROR");
     }
 }
 

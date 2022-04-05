@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->InputWindow->hide();
     ui->SettingsWindow->setGeometry(0, 0, ui->SettingsWindow->geometry().width(), ui->SettingsWindow->geometry().height());
     ui->SettingsWindow->hide();
+    ui->KeyboardWindow->setGeometry(0, 0, ui->KeyboardWindow->geometry().width(), ui->KeyboardWindow->geometry().height());
+    ui->KeyboardWindow->hide();
+
     mouseSenseValidator = new QRegularExpressionValidator(QRegularExpression("^[1-9]$"));
     ui->lE_MouseSense->setValidator(mouseSenseValidator);
     scrollSenseValidator = new QRegularExpressionValidator(QRegularExpression("^[1-9]$"));
@@ -53,26 +56,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_pB_Send_clicked()
-{
-    QString str = QString("%2").arg(ui->lE_ToSend->text());
-    SendToServerTCP(Message, quint16(0), str);
-}
+
 
 
 
 /**
  ** Block of control communication to server
  **/
-void MainWindow::on_pB_Connect_clicked() //After click on connect button we create new socket, connect signals and connect to host
-{
-    TCPsocket = new QTcpSocket(this);
-    connect(TCPsocket, &QTcpSocket::connected, this, &MainWindow::connectResived);
-    connect(TCPsocket, &QTcpSocket::disconnected, TCPsocket, &QTcpSocket::deleteLater);
-    connect(TCPsocket, &QTcpSocket::disconnected, this, &MainWindow::disconnectResived);
 
-    TCPsocket->connectToHost("192.168.31.193", 2323);
-}
 
 void MainWindow::connectResived()// Unblocking all objects, that communicate with the server
 {
@@ -163,9 +154,27 @@ void MainWindow::ScrollMove(QTouchEvent *te)//sending a wish to turn the weel, p
     oldScrollY = y;
 }
 
-/*
- * block of processing mouse button input
-*/
+/**
+ * Buttons of ConnectWindow
+ */
+void MainWindow::on_pB_Connect_clicked() //After click on connect button we create new socket, connect signals and connect to host
+{
+    TCPsocket = new QTcpSocket(this);
+    connect(TCPsocket, &QTcpSocket::connected, this, &MainWindow::connectResived);
+    connect(TCPsocket, &QTcpSocket::disconnected, TCPsocket, &QTcpSocket::deleteLater);
+    connect(TCPsocket, &QTcpSocket::disconnected, this, &MainWindow::disconnectResived);
+
+    TCPsocket->connectToHost("192.168.31.193", 2323);
+}
+
+/**
+ * Buttons of InputWindow
+ */
+void MainWindow::on_pB_Send_clicked()
+{
+    QString str = QString("%2").arg(ui->lE_ToSend->text());
+    SendToServerTCP(Message, quint16(0), str);
+}
 void MainWindow::on_pB_LeftClick_pressed()
 {
     qDebug() << MouseInputBtn << (MouseLeftClick|MouseKeyDown);
@@ -201,26 +210,10 @@ void MainWindow::on_pB_RightClick_released()
     SendToServerTCP(MouseInputBtn, MouseRightClick);
 }
 
-void MainWindow::on_pB_VolumePlus_clicked()
-{
-    SendToServerTCP(ChangeVolumeLevel, VolumeLevelUp);
-}
-
-
-void MainWindow::on_pB_VolumeMinus_clicked()
-{
-    SendToServerTCP(ChangeVolumeLevel, VolumeLevelDown);
-}
-
-
-void MainWindow::on_pB_VolumeMute_clicked()
-{
-    SendToServerTCP(ChangeVolumeLevel, VolumeLevelMute);
-}
 
 
 /**
- * Block of settings
+ * Buttons of SettingsWindow
  */
 void MainWindow::on_pB_Settings_clicked()
 {
@@ -274,5 +267,161 @@ void MainWindow::on_pB_ScrollSense_2_clicked()
         ui->lE_ScrollSense->setText(QString::number(ui->lE_ScrollSense->text().toInt()-1));
 }
 
+/**
+ * Buttons of KeyboardWindow
+ */
+
+void MainWindow::on_pB_Keyboard_clicked()
+{
+    ui->InputWindow->hide();
+    ui->KeyboardWindow->show();
+}
+
+void MainWindow::on_pB_KeyboardBack_clicked()
+{
+    ui->InputWindow->show();
+    ui->KeyboardWindow->hide();
+}
+
+void MainWindow::on_pB_VolumePlus_clicked()
+{
+    SendToServerTCP(ChangeVolumeLevel, VolumeLevelUp);
+}
+
+
+void MainWindow::on_pB_VolumeMinus_clicked()
+{
+    SendToServerTCP(ChangeVolumeLevel, VolumeLevelDown);
+}
+
+
+void MainWindow::on_pB_VolumeMute_clicked()
+{
+    SendToServerTCP(ChangeVolumeLevel, VolumeLevelMute);
+}
+
+void MainWindow::on_pB_KeyEsc_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyEsc|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyEsc_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyEsc|KeyboardKeyRelease);
+}
+
+
+void MainWindow::on_pB_KeyTab_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyTab|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyTab_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyTab|KeyboardKeyRelease);
+}
+
+
+void MainWindow::on_pB_KeyCaps_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyCaps|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyCaps_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyCaps|KeyboardKeyRelease);
+}
+
+void MainWindow::on_pB_KeyShift_toggled(bool checked)
+{
+    if(checked){
+        SendToServerTCP(KeyboardInputBtn, KeyboardKeyShift|KeyboardKeyPress);
+    }
+    else{
+        SendToServerTCP(KeyboardInputBtn, KeyboardKeyShift|KeyboardKeyRelease);
+    }
+}
+
+
+void MainWindow::on_pB_KeyCtrl_toggled(bool checked)
+{
+    if(checked){
+        SendToServerTCP(KeyboardInputBtn, KeyboardKeyCtrl|KeyboardKeyPress);
+    }
+    else{
+        SendToServerTCP(KeyboardInputBtn, KeyboardKeyCtrl|KeyboardKeyRelease);
+    }
+}
+
+void MainWindow::on_pB_KeyWin_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyWin|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyWin_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyWin|KeyboardKeyRelease);
+}
+
+void MainWindow::on_pB_KeyAlt_toggled(bool checked)
+{
+    if(checked){
+        SendToServerTCP(KeyboardInputBtn, KeyboardKeyAlt|KeyboardKeyPress);
+    }
+    else{
+        SendToServerTCP(KeyboardInputBtn, KeyboardKeyAlt|KeyboardKeyRelease);
+    }
+}
+
+void MainWindow::on_pB_KeyUp_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyUp|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyUp_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyUp|KeyboardKeyRelease);
+}
+
+
+void MainWindow::on_pB_KeyLeft_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyLeft|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyLeft_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyLeft|KeyboardKeyRelease);
+}
+
+
+void MainWindow::on_pB_KeyDown_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyDown|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyDown_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyDown|KeyboardKeyRelease);
+}
+
+
+void MainWindow::on_pB_KeyRight_pressed()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyRight|KeyboardKeyPress);
+}
+
+
+void MainWindow::on_pB_KeyRight_released()
+{
+    SendToServerTCP(KeyboardInputBtn, KeyboardKeyRight|KeyboardKeyRelease);
+}
 
 

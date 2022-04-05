@@ -31,18 +31,7 @@ private:
     Ui::MainWindow *ui;
     MyServer *ms;
     QSystemTrayIcon *trayIcon;
-//    enum MouseMovementType{
-//        CursorMovement,
-//        ScrollMovement
-//    };
-//    enum MouseInputBtnType{
-//        KeyUp = 0x00,
-//        KeyDown = 0x01,
-//        MouseLeftClick = 0x02,
-//        MouseLeftDClick = 0x04,
-//        MouseMiddleClick = 0x08,
-//        MouseRightClick = 0x10
-//    };
+
     void CursorMove(QString str);
     void ScrollMove(QString str);
 
@@ -52,6 +41,7 @@ public slots:
     void reciveVolumeLevelChanges(MyServer::VolumeLevelChangeType msgType);
     void reciveMouseMovement(MyServer::MouseMovementType msgType, QString str);
     void reciveMouseBtnInput(MyServer::MouseInputBtnType msgType);
+    void reciveKeyboardBtnInput(MyServer::KeyboardInputBtnType msgType);
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);

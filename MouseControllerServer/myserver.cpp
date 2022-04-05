@@ -81,6 +81,12 @@ void MyServer::slotReadyToReadTcp()
                         emit sendMouseBtnInput(static_cast<MouseInputBtnType>(msgType));
                         break;
                     }
+                    case (KeyboardInputBtn):{
+                        quint16 msgType;
+                        in >> msgType;
+                        emit sendKeyboardBtnInput(static_cast<KeyboardInputBtnType>(msgType));
+                        break;
+                    }
                     case (ChangeVolumeLevel):{
                         quint16 msgType;
                         in >> msgType;

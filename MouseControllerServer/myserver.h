@@ -20,6 +20,7 @@ public:
     enum MsgType{
         MouseMovement,
         MouseInputBtn,
+        KeyboardInputBtn,
         Message,
         ChangeVolumeLevel
     };
@@ -34,6 +35,21 @@ public:
         MouseLeftTap = 0x04,
         MouseMiddleClick = 0x08,
         MouseRightClick = 0x10
+    };
+    enum KeyboardInputBtnType{
+        KeyboardKeyRelease = 0x00,
+        KeyboardKeyPress = 0x01,
+        KeyboardKeyUp = 0x02,
+        KeyboardKeyDown = 0x04,
+        KeyboardKeyLeft = 0x08,
+        KeyboardKeyRight = 0x10,
+        KeyboardKeyAlt = 0x20,
+        KeyboardKeyWin = 0x40,
+        KeyboardKeyCtrl = 0x80,
+        KeyboardKeyShift = 0x100,
+        KeyboardKeyCaps = 0x200,
+        KeyboardKeyTab = 0x400,
+        KeyboardKeyEsc = 0x800,
     };
     enum VolumeLevelChangeType{
         VolumeLevelUp = 0x02,
@@ -59,6 +75,7 @@ signals:
     void sendVolumeLevelChanges(VolumeLevelChangeType);
     void sendMouseMovement(MyServer::MouseMovementType, QString);
     void sendMouseBtnInput(MyServer::MouseInputBtnType);
+    void sendKeyboardBtnInput(KeyboardInputBtnType);
 };
 
 #endif // MYSERVER_H

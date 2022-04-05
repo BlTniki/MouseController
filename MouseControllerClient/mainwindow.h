@@ -45,6 +45,7 @@ private:
     enum MsgType{
         MouseMovement,
         MouseInputBtn,
+        KeyboardInputBtn,
         Message,
         ChangeVolumeLevel
     };
@@ -59,6 +60,21 @@ private:
         MouseLeftTap = 0x04,
         MouseMiddleClick = 0x08,
         MouseRightClick = 0x10
+    };
+    enum KeyboardInputBtnType{
+        KeyboardKeyRelease = 0x00,
+        KeyboardKeyPress = 0x01,
+        KeyboardKeyUp = 0x02,
+        KeyboardKeyDown = 0x04,
+        KeyboardKeyLeft = 0x08,
+        KeyboardKeyRight = 0x10,
+        KeyboardKeyAlt = 0x20,
+        KeyboardKeyWin = 0x40,
+        KeyboardKeyCtrl = 0x80,
+        KeyboardKeyShift = 0x100,
+        KeyboardKeyCaps = 0x200,
+        KeyboardKeyTab = 0x400,
+        KeyboardKeyEsc = 0x800,
     };
     enum VolumeLevelChangeType{
         VolumeLevelUp = 0x02,
@@ -78,15 +94,28 @@ public slots:
     void disconnectResived();
 
 private slots:
-    void on_pB_Send_clicked();
+    /**
+     * Buttons of ConnectWindow
+     */
     void on_pB_Connect_clicked();
+
+    /**
+     * Buttons of InputWindow
+     */
+    void on_pB_Send_clicked();
     void on_pB_LeftClick_pressed();
     void on_pB_LeftClick_released();
     void on_pB_MiddleClick_pressed();
     void on_pB_MiddleClick_released();
     void on_pB_RightClick_pressed();
     void on_pB_RightClick_released();
+
     void on_pB_Settings_clicked();
+    void on_pB_Keyboard_clicked();
+
+    /**
+     * Buttons of SettingsWindow
+     */
     void on_pB_SettingsBack_clicked();
     void on_lE_MouseSense_textChanged(const QString &arg1);
     void on_pB_MouseSensePlus_clicked();
@@ -94,8 +123,44 @@ private slots:
     void on_lE_ScrollSense_textChanged(const QString &arg1);
     void on_pB_ScrollSense_clicked();
     void on_pB_ScrollSense_2_clicked();
+
+    /**
+     * Buttons of KeyboardWindow
+     */
+    void on_pB_KeyboardBack_clicked();
     void on_pB_VolumePlus_clicked();
     void on_pB_VolumeMinus_clicked();
     void on_pB_VolumeMute_clicked();
+    void on_pB_KeyAlt_toggled(bool checked);
+
+    void on_pB_KeyUp_pressed();
+    void on_pB_KeyUp_released();
+
+    void on_pB_KeyLeft_pressed();
+    void on_pB_KeyLeft_released();
+
+    void on_pB_KeyDown_pressed();
+    void on_pB_KeyDown_released();
+
+    void on_pB_KeyRight_pressed();
+    void on_pB_KeyRight_released();
+
+    void on_pB_KeyEsc_pressed();
+    void on_pB_KeyEsc_released();
+
+    void on_pB_KeyTab_pressed();
+    void on_pB_KeyTab_released();
+
+    void on_pB_KeyCaps_pressed();
+    void on_pB_KeyCaps_released();
+
+    void on_pB_KeyShift_toggled(bool checked);
+
+    void on_pB_KeyWin_pressed();
+    void on_pB_KeyWin_released();
+
+    void on_pB_KeyCtrl_toggled(bool checked);
+
+
 };
 #endif // MAINWINDOW_H
