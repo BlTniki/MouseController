@@ -9,16 +9,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     this->setWindowTitle("MouseController");
-    ms = new MyServer;
 
-    //connect signals between MainWindow and Server
-    connect(ms, &MyServer::sendMes, this, &MainWindow::reciveMes);
-    connect(ms, &MyServer::sendMouseMovement , this, &MainWindow::reciveMouseMovement);
-    connect(ms, &MyServer::sendMouseBtnInput , this, &MainWindow::reciveMouseBtnInput);
-    connect(ms, &MyServer::sendKeyboardBtnInput , this, &MainWindow::reciveKeyboardBtnInput);
-    connect(ms, &MyServer::sendStringPast , this, &MainWindow::reciveStringPast);
-    connect(ms, &MyServer::sendVolumeLevelChanges , this, &MainWindow::reciveVolumeLevelChanges);
-
+    //setup validators
+    ipAdressValidator = new QRegularExpressionValidator(QRegularExpression("([0-9]{1,3}[\\.]){3}[0-9]{1,3}"));
+    ui->lE_IPadress->setValidator(ipAdressValidator);
+    portValidator = new QRegularExpressionValidator(QRegularExpression("[1-9]+"));
+    ui->lE_Port->setValidator(portValidator);
 
     /* Initialize the tray icon, set the icon from the system icon set,
      * and also set a tooltip
@@ -52,10 +48,43 @@ MainWindow::MainWindow(QWidget *parent)
      * */
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+
+    //setup settings state
+    SettingsSaves.setFileName("SettingsSaves");
+    if(SettingsSaves.exists()){
+        QString buf;
+        SettingsSaves.open(QIODevice::ReadOnly | QIODevice::Text);
+        buf = SettingsSaves.readAll();
+        SettingsSaves.close();
+        SettingsStates = QJsonDocument::fromJson(buf.toUtf8()).object();
+
+        //recover host history
+        int ipCount = SettingsStates["HostHistory"].toInt();
+        for (int i=0; i<ipCount; i++) {
+            QString host = SettingsStates[QString("ip%1").arg(i)].toString();
+            ui->cB_HostHistory->addItem(QString(host), i);
+        }
+        FillHostAdress(SettingsStates["lastUsedIp"].toString());
+    }
 }
 
 MainWindow::~MainWindow()
 {
+    SettingsStates = QJsonObject({{"HostHistory",0},
+                                 });
+    int comboBoxItemCount = ui->cB_HostHistory->count();
+    SettingsStates["HostHistory"] = comboBoxItemCount;
+    for (int i=0; i<comboBoxItemCount; i++) {
+        SettingsStates[QString("ip%1").arg(i)] = ui->cB_HostHistory->itemText(i);
+    }
+    SettingsStates["lastUsedIp"] = QString(ui->lE_IPadress->text()+" "+ui->lE_Port->text());
+
+    QJsonDocument doc(SettingsStates);
+    QString jsonString = doc.toJson(QJsonDocument::Indented);
+    SettingsSaves.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream stream( &SettingsSaves );
+    stream << jsonString;
+    SettingsSaves.close();
     delete ui;
 }
 
@@ -149,6 +178,19 @@ void MainWindow::ScrollMove(QString str)
     reciveMes(QString("y %1").arg(dy));
 
     mouse_event (MOUSEEVENTF_WHEEL, 0, 0, (-1)*dy*10, 0);
+}
+
+void MainWindow::FillHostAdress(QString host)
+{
+    QString ip = "", port = "";
+    for (int j=0; j<host.size(); j++) {
+        if(host[j]==' '){
+            ip = host.first(j);
+            port = host.last(host.size()-j-1);
+        }
+    }
+    ui->lE_IPadress->setText(ip);
+    ui->lE_Port->setText(port);
 }
 
 void MainWindow::reciveMouseBtnInput(MyServer::MouseInputBtnType msgType)
@@ -397,3 +439,50 @@ void MainWindow::reciveVolumeLevelChanges(MyServer::VolumeLevelChangeType msgTyp
         reciveMes("VolumeLevelChanges ERROR");
     }
 }
+
+void MainWindow::on_pB_Start_clicked()
+{
+    ms = new MyServer(ui->lE_IPadress->text(), ui->lE_Port->text());
+    if(ms->isListening()){
+        ui->textBrowser->append("Start " + ms->serverAddress().toString() + " " + QString::number(ms->serverPort()));
+    }
+    else{
+        ui->textBrowser->append("Error");
+    }
+
+    //connect signals between MainWindow and Server
+    connect(ms, &MyServer::sendMes, this, &MainWindow::reciveMes);
+    connect(ms, &MyServer::sendMouseMovement , this, &MainWindow::reciveMouseMovement);
+    connect(ms, &MyServer::sendMouseBtnInput , this, &MainWindow::reciveMouseBtnInput);
+    connect(ms, &MyServer::sendKeyboardBtnInput , this, &MainWindow::reciveKeyboardBtnInput);
+    connect(ms, &MyServer::sendStringPast , this, &MainWindow::reciveStringPast);
+    connect(ms, &MyServer::sendVolumeLevelChanges , this, &MainWindow::reciveVolumeLevelChanges);
+}
+
+
+void MainWindow::on_pB_Stop_clicked()
+{
+    delete ms;
+    ui->textBrowser->append("Server stoped");
+}
+
+
+void MainWindow::on_pB_Remeber_clicked()
+{
+    int comboBoxItemCount = ui->cB_HostHistory->count();
+    QString ip = ui->lE_IPadress->text(), port = ui->lE_Port->text();
+    ui->cB_HostHistory->addItem(QString(ip+" "+port), comboBoxItemCount);
+}
+
+
+void MainWindow::on_pB_Fill_clicked()
+{
+    FillHostAdress(ui->cB_HostHistory->currentText());
+}
+
+
+void MainWindow::on_pB_Forget_clicked()
+{
+    ui->cB_HostHistory->removeItem(ui->cB_HostHistory->currentIndex());
+}
+

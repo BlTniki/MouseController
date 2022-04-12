@@ -1,18 +1,36 @@
 #include "myserver.h"
 
-MyServer::MyServer()
+MyServer::MyServer(QString IPadress, QString Port)
 {
-    if(this->listen(QHostAddress::Any, 2323)){
+    server_IPadress = QHostAddress(IPadress);
+    server_Port = Port.toUInt();
+    if(this->listen(server_IPadress, server_Port)){
         qDebug() << "start";
     }
     else{
         qDebug() << "error";
     }
-
     UDPsocket = new QUdpSocket;
-    UDPsocket->bind(QHostAddress::Any, 2323);
+    UDPsocket->bind(server_IPadress, server_Port);
     connect(UDPsocket, &QUdpSocket::readyRead, this, &MyServer::slotReadyToReadUdp);
     connect(UDPsocket, &QUdpSocket::disconnected, UDPsocket, &QUdpSocket::deleteLater);
+}
+
+MyServer::~MyServer()
+{
+    qDebug() << "im closed(";
+
+    if(TCPsocket){
+        TCPsocket->disconnect();
+        delete TCPsocket;
+        TCPsocket = nullptr;
+    }
+
+    if(UDPsocket){
+        UDPsocket->disconnect();
+        delete UDPsocket;
+        UDPsocket = nullptr;
+    }
 }
 
 /**

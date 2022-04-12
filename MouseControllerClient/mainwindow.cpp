@@ -14,10 +14,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->KeyboardWindow->setGeometry(0, 0, ui->KeyboardWindow->geometry().width(), ui->KeyboardWindow->geometry().height());
     ui->KeyboardWindow->hide();
 
-    mouseSenseValidator = new QRegularExpressionValidator(QRegularExpression("^[1-9]$"));
+    //setup validators
+    mouseSenseValidator = new QRegularExpressionValidator(QRegularExpression("[1-9]$"));
     ui->lE_MouseSense->setValidator(mouseSenseValidator);
-    scrollSenseValidator = new QRegularExpressionValidator(QRegularExpression("^[1-9]$"));
+    scrollSenseValidator = new QRegularExpressionValidator(QRegularExpression("[1-9]$"));
     ui->lE_ScrollSense->setValidator(scrollSenseValidator);
+    ipAdressValidator = new QRegularExpressionValidator(QRegularExpression("([0-9]{1,3}[\\.]){3}[0-9]{1,3}"));
+    ui->lE_IPadress->setValidator(ipAdressValidator);
+    portValidator = new QRegularExpressionValidator(QRegularExpression("[1-9]+"));
+    ui->lE_Port->setValidator(portValidator);
 
     sa = ui->senseArea;
     sb = ui->scrollBar;
@@ -33,20 +38,36 @@ MainWindow::MainWindow(QWidget *parent)
         buf = SettingsSaves.readAll();
         SettingsSaves.close();
         SettingsStates = QJsonDocument::fromJson(buf.toUtf8()).object();
-        ui->lE_MouseSense->setText(SettingsStates["mouseSense"].toString());
-        ui->lE_ScrollSense->setText(SettingsStates["scrollSense"].toString());
-    }
+        ui->lE_MouseSense->setText(QString::number(SettingsStates["mouseSense"].toInt()));
+        ui->lE_ScrollSense->setText(QString::number(SettingsStates["scrollSense"].toInt()));
 
-    //setup udp socket
-    UDPsocket = new QUdpSocket(this);
-    UDPsocket->connectToHost("192.168.31.193", 2323);
-    connect(UDPsocket, &QUdpSocket::disconnected, UDPsocket, &QUdpSocket::deleteLater);
+        //recover ip history
+        int ipCount = SettingsStates["HostHistory"].toInt();
+        for (int i=0; i<ipCount; i++) {
+            QString host = SettingsStates[QString("ip%1").arg(i)].toString();
+            ui->cB_HostHistory->addItem(QString(host), i);
+        }
+        FillHostAdress(SettingsStates["lastUsedIp"].toString());
+    }
 }
 
 MainWindow::~MainWindow()
 {
-    SettingsStates["mouseSense"] = QString("%1").arg(mouseSense);
-    SettingsStates["scrollSense"] = QString("%1").arg(scrollSense);
+    SettingsStates = QJsonObject({{"mouseSense",1},
+                                  {"scrollSense",1},
+                                  {"HostHistory",0},
+                                 });
+
+    SettingsStates["mouseSense"] = mouseSense;
+    SettingsStates["scrollSense"] = scrollSense;
+
+    int comboBoxItemCount = ui->cB_HostHistory->count();
+    SettingsStates["HostHistory"] = comboBoxItemCount;
+    for (int i=0; i<comboBoxItemCount; i++) {
+        SettingsStates[QString("ip%1").arg(i)] = ui->cB_HostHistory->itemText(i);
+    }
+    SettingsStates["lastUsedIp"] = QString(ui->lE_IPadress->text()+" "+ui->lE_Port->text());
+
     QJsonDocument doc(SettingsStates);
     QString jsonString = doc.toJson(QJsonDocument::Indented);
     SettingsSaves.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -57,7 +78,18 @@ MainWindow::~MainWindow()
 }
 
 
-
+void MainWindow::FillHostAdress(QString host)
+{
+    QString ip = "", port = "";
+    for (int j=0; j<host.size(); j++) {
+        if(host[j]==' '){
+            ip = host.first(j);
+            port = host.last(host.size()-j-1);
+        }
+    }
+    ui->lE_IPadress->setText(ip);
+    ui->lE_Port->setText(port);
+}
 
 
 /**
@@ -76,7 +108,18 @@ void MainWindow::disconnectResived()// Blocking all objects, that communicate wi
     ui->ConnectWindow->show();
     ui->InputWindow->hide();
     ui->SettingsWindow->hide();
-    ui->KeyboardWindow->hide();
+
+    if(TCPsocket){
+        TCPsocket->disconnect();
+        delete TCPsocket;
+        TCPsocket = nullptr;
+    }
+
+    if(UDPsocket){
+        UDPsocket->disconnect();
+        delete UDPsocket;
+        UDPsocket = nullptr;
+    }
 }
 
 void MainWindow::SendToServerTCP(quint16 msgType, quint16 msg, QString str)
@@ -160,13 +203,40 @@ void MainWindow::ScrollMove(QTouchEvent *te)//sending a wish to turn the weel, p
  */
 void MainWindow::on_pB_Connect_clicked() //After click on connect button we create new socket, connect signals and connect to host
 {
+    IPadress = ui->lE_IPadress->text();
+    Port = ui->lE_Port->text().toUInt();
+
+    //setup udp socket
+    UDPsocket = new QUdpSocket(this);
+    UDPsocket->connectToHost(IPadress, Port);
+    connect(UDPsocket, &QUdpSocket::disconnected, UDPsocket, &QUdpSocket::deleteLater);
+
+    //setup tcp socket
     TCPsocket = new QTcpSocket(this);
     connect(TCPsocket, &QTcpSocket::connected, this, &MainWindow::connectResived);
     connect(TCPsocket, &QTcpSocket::disconnected, TCPsocket, &QTcpSocket::deleteLater);
     connect(TCPsocket, &QTcpSocket::disconnected, this, &MainWindow::disconnectResived);
 
-    TCPsocket->connectToHost("192.168.31.193", 2323);
+    TCPsocket->connectToHost(IPadress, Port);
 }
+
+void MainWindow::on_pB_Remeber_clicked()
+{
+    int comboBoxItemCount = ui->cB_HostHistory->count();
+    QString ip = ui->lE_IPadress->text(), port = ui->lE_Port->text();
+    ui->cB_HostHistory->addItem(QString(ip+" "+port), comboBoxItemCount);
+}
+
+void MainWindow::on_pB_Forget_clicked()
+{
+    ui->cB_HostHistory->removeItem(ui->cB_HostHistory->currentIndex());
+}
+
+void MainWindow::on_pB_Fill_clicked()
+{
+    FillHostAdress(ui->cB_HostHistory->currentText());
+}
+
 
 /**
  * Buttons of InputWindow
@@ -424,5 +494,3 @@ void MainWindow::on_pB_KeyRight_released()
 {
     SendToServerTCP(KeyboardInputBtn, KeyboardKeyRight|KeyboardKeyRelease);
 }
-
-

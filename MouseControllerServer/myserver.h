@@ -1,6 +1,7 @@
 #ifndef MYSERVER_H
 #define MYSERVER_H
 
+#include <QHostAddress>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QUdpSocket>
@@ -14,9 +15,10 @@ class MyServer : public QTcpServer
 {
     Q_OBJECT;
 public:
-    MyServer();
-    QTcpSocket *TCPsocket;
-    QUdpSocket *UDPsocket;
+    MyServer(QString IPadress, QString Port);
+    ~MyServer();
+    QTcpSocket *TCPsocket = nullptr;
+    QUdpSocket *UDPsocket = nullptr;
     enum MsgType{
         MouseMovement,
         MouseInputBtn,
@@ -58,6 +60,8 @@ public:
     };
 
 private:
+    QHostAddress server_IPadress;
+    quint16 server_Port;
     QVector <QTcpSocket*> Sockets;
     QByteArray data;
     quint16 nextBlockSize;

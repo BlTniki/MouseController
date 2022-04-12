@@ -54,34 +54,107 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QSplitter" name="splitter">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>210</y>
+       <y>10</y>
        <width>371</width>
-       <height>311</height>
+       <height>401</height>
       </rect>
      </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <widget class="QLabel" name="l_ico">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="res.qrc">:/res/ico.jpg</pixmap>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pB_Connect">
-      <property name="text">
-       <string>connect</string>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_9">
+      <item>
+       <widget class="QSplitter" name="splitter">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="QLabel" name="l_ico">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>:/res/ico.jpg</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pB_Connect">
+         <property name="text">
+          <string>connect</string>
+         </property>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="4,1">
+          <item>
+           <widget class="QLineEdit" name="lE_IPadress">
+            <property name="text">
+             <string>192.168.31.193</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lE_Port">
+            <property name="text">
+             <string>2323</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_14">
+          <item>
+           <widget class="QPushButton" name="pB_Remeber">
+            <property name="text">
+             <string>Remeber</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_9">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="3,1,0">
+          <item>
+           <widget class="QComboBox" name="cB_HostHistory"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pB_Fill">
+            <property name="text">
+             <string>Fill</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pB_Forget">
+            <property name="text">
+             <string>Forget</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="InputWindow" native="true">
@@ -1442,8 +1515,6 @@
    <zorder>SettingsWindow</zorder>
    <zorder>KeyboardWindow</zorder>
    <zorder>InputWindow</zorder>
-   <zorder>pB_KeyEsc</zorder>
-   <zorder>horizontalSpacer_8</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -1479,8 +1550,6 @@
   <tabstop>pB_RightClick</tabstop>
   <tabstop>lE_ToSend</tabstop>
  </tabstops>
- <resources>
-  <include location="res.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

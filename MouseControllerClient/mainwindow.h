@@ -28,6 +28,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QString IPadress;
+    quint16 Port;
     SenseArea *sa;
     ScrollBar *sb;
     QTcpSocket *TCPsocket;
@@ -37,7 +39,14 @@ private:
     quint16 messageType;
     QRegularExpressionValidator *mouseSenseValidator;
     QRegularExpressionValidator *scrollSenseValidator;
-    QJsonObject SettingsStates{{"mouseSense",1},{"scrollSense",1}};
+    QRegularExpressionValidator *ipAdressValidator;
+    QRegularExpressionValidator *portValidator;
+    QJsonObject SettingsStates{{"mouseSense",1},
+                               {"scrollSense",1},
+                               {"HostHistory",2},
+                               {"ip0", "0.0.0.0 0000"},
+                               {"ip1", "0.0.0.1 0001"}
+                              };
     QFile SettingsSaves;
     int oldMouseX = 0, oldMouseY = 0;
     int oldScrollY;
@@ -83,6 +92,7 @@ private:
     };
     void SendToServerUDP(quint16 msgType, quint16 msg, QString str="");
     void SendToServerTCP(quint16 msgType, quint16 msg, QString str="");
+    void FillHostAdress(QString host);
 
 protected:
 
@@ -98,6 +108,9 @@ private slots:
      * Buttons of ConnectWindow
      */
     void on_pB_Connect_clicked();
+    void on_pB_Remeber_clicked();
+    void on_pB_Fill_clicked();
+    void on_pB_Forget_clicked();
 
     /**
      * Buttons of InputWindow

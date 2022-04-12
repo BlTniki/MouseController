@@ -8,6 +8,10 @@
 #include <QSystemTrayIcon>
 #include <QAction>
 #include <QStyle>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QFile>
+#include <QRegularExpressionValidator>
 #include <windows.h>
 
 #include "myserver.h"
@@ -31,9 +35,17 @@ private:
     Ui::MainWindow *ui;
     MyServer *ms;
     QSystemTrayIcon *trayIcon;
+    QRegularExpressionValidator *ipAdressValidator;
+    QRegularExpressionValidator *portValidator;
+    QJsonObject SettingsStates{{"HostHistory",2},
+                               {"ip0", "0.0.0.0 0000"},
+                               {"ip1", "0.0.0.1 0001"}
+                              };
+    QFile SettingsSaves;
 
     void CursorMove(QString str);
     void ScrollMove(QString str);
+    void FillHostAdress(QString host);
 
 public slots:
     void reciveMes(QString str);
@@ -46,5 +58,10 @@ public slots:
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
+    void on_pB_Start_clicked();
+    void on_pB_Stop_clicked();
+    void on_pB_Remeber_clicked();
+    void on_pB_Fill_clicked();
+    void on_pB_Forget_clicked();
 };
 #endif // MAINWINDOW_H
