@@ -108,6 +108,7 @@ void MainWindow::disconnectResived()// Blocking all objects, that communicate wi
     ui->ConnectWindow->show();
     ui->InputWindow->hide();
     ui->SettingsWindow->hide();
+    ui->KeyboardWindow->hide();
 
     if(TCPsocket){
         TCPsocket->disconnect();
