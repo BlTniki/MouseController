@@ -27,6 +27,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    bool AutoRun = false;
 
 protected:
 void closeEvent(QCloseEvent * event);
@@ -42,7 +43,6 @@ private:
                                {"ip1", "0.0.0.1 0001"}
                               };
     QFile SettingsSaves;
-
     void CursorMove(QString str);
     void ScrollMove(QString str);
     void FillHostAdress(QString host);

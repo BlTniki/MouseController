@@ -65,13 +65,22 @@ MainWindow::MainWindow(QWidget *parent)
             ui->cB_HostHistory->addItem(QString(host), i);
         }
         FillHostAdress(SettingsStates["lastUsedIp"].toString());
+        ui->cB_AutoRun->setChecked(SettingsStates["AutoRun"].toBool());
+    }
+    if(ui->cB_AutoRun->isChecked()){
+        AutoRun = true;
+        on_pB_Start_clicked();
     }
 }
 
 MainWindow::~MainWindow()
 {
-    SettingsStates = QJsonObject({{"HostHistory",0},
+    SettingsStates = QJsonObject({{"AutoRun",false},
+                                  {"HostHistory",0}
                                  });
+
+    SettingsStates["AutoRun"] = ui->cB_AutoRun->isChecked();
+
     int comboBoxItemCount = ui->cB_HostHistory->count();
     SettingsStates["HostHistory"] = comboBoxItemCount;
     for (int i=0; i<comboBoxItemCount; i++) {
