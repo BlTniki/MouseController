@@ -14,6 +14,8 @@ MyServer::MyServer(QString IPadress, QString Port)
     UDPsocket->bind(server_IPadress, server_Port);
     connect(UDPsocket, &QUdpSocket::readyRead, this, &MyServer::slotReadyToReadUdp);
     connect(UDPsocket, &QUdpSocket::disconnected, UDPsocket, &QUdpSocket::deleteLater);
+
+    nextTcpBlockSize = 0; nextUdpBlockSize = 0;
 }
 
 MyServer::~MyServer()
@@ -50,137 +52,146 @@ void MyServer::incomingConnection(qintptr socketDescriptor)
 
 void MyServer::slotReadyToReadTcp()
 {
-    nextBlockSize = 0;
-    TCPsocket = (QTcpSocket*)sender();
     qDebug() << "TCP";
-    QByteArray q;
-    qDebug() << TCPsocket->size();
-    q = TCPsocket->readAll();
-    qDebug() << q;
+    emit sendMes("Has some TCP data");
 
-    QDataStream in(q);
+    TCPsocket = (QTcpSocket*)sender();
+    quint64 pendingDataSize = TCPsocket->size();
+    QByteArray header;
+    const quint64 headerSize = 4; //amount of header bytes
 
-    in.setVersion(QDataStream::Qt_6_2);
+    do{
+        if(pendingDataSize<2){
+            emit sendMes("Data < 2. return");
+            return;
+        }
 
-
-    if(in.status() == QDataStream::Ok){
-        emit sendMes("reading...");
-
-        //this cycle for reading all data that recived
-        while(!in.atEnd()){
-                if(nextBlockSize == 0){
-                    if(q.size() < 2){
-                        emit sendMes("Data < 2. error");
-                        break;
-                    }
-                    in >> nextBlockSize;
-                    qDebug() << "nextBlockSize ==" << nextBlockSize;
-                    if(q.size() < nextBlockSize){
-                        emit sendMes("Data not full, break");
-                        break;
-                    }
-
-                    in >> messageType;
-                    nextBlockSize = 0;
-
-                    switch (messageType) {
-                    case (Message):{
-                        quint16 shift;
-                        in >> shift;
-                        QString str = "";
-                        in >> str;
-                        emit sendMes(str);
-                        emit sendStringPast(str);
-                        break;
-                    }
-                    case (MouseInputBtn):{
-                        quint16 msgType;
-                        in >> msgType;
-                        emit sendMouseBtnInput(static_cast<MouseInputBtnType>(msgType));
-                        break;
-                    }
-                    case (KeyboardInputBtn):{
-                        quint16 msgType;
-                        in >> msgType;
-                        emit sendKeyboardBtnInput(static_cast<KeyboardInputBtnType>(msgType));
-                        break;
-                    }
-                    case (ChangeVolumeLevel):{
-                        quint16 msgType;
-                        in >> msgType;
-                        emit sendVolumeLevelChanges(static_cast<VolumeLevelChangeType>(msgType));
-                        break;
-                    }
-                    default:
-                        //emit sendMes("Read TCP ERROR");
-                        break;
-                    }
+        if(nextTcpBlockSize == 0){
+            QDataStream blockSize(TCPsocket->read(2));
+            blockSize.setVersion(QDataStream::Qt_6_2);
+            if(blockSize.status() == QDataStream::Ok){
+                blockSize >> nextTcpBlockSize;
+                if(nextTcpBlockSize > pendingDataSize){
+                    qDebug() << "Data not full. return";
+                    return;
                 }
+            }else{
+                qDebug() << "blockSize: Has problem with reading. Abort";
+                TCPsocket->readAll(); //cleaning a buffer
+                return;
+            }
+        }
+
+        header = TCPsocket->read(headerSize);
+        QDataStream in(header);
+        in.setVersion(QDataStream::Qt_6_2);
+
+        qDebug() << "incoming data size =" << TCPsocket->size() << "incoming block size =" << nextTcpBlockSize;
+        qDebug() << header;
+
+        if(in.status() == QDataStream::Ok){
+            emit sendMes("reading...");
+            in >> message;
+            switch (message) {
+            case (Message):{
+                in >> messageDetail;
+                quint64 dataSize = messageDetail;
+                QByteArray data = TCPsocket->read(dataSize);
+                QString str(data);
+                emit sendMes(str);
+                emit sendStringPast(str);
+                break;
+            }
+            case (MouseInputBtn):{
+                quint16 msgType;
+                in >> msgType;
+                emit sendMouseBtnInput(static_cast<MouseInputBtnType>(msgType));
+                break;
+            }
+            case (KeyboardInputBtn):{
+                quint16 msgType;
+                in >> msgType;
+                emit sendKeyboardBtnInput(static_cast<KeyboardInputBtnType>(msgType));
+                break;
+            }
+            case (ChangeVolumeLevel):{
+                quint16 msgType;
+                in >> msgType;
+                emit sendVolumeLevelChanges(static_cast<VolumeLevelChangeType>(msgType));
+                break;
+            }
+            default:
+                //emit sendMes("Read TCP ERROR");
+                break;
+            }
 
         }
-    }
-    else{
-        emit sendMes("DataStream error");
-        return;
-    }
+        else{
+            qDebug() << "in: Has problem with reading. Abort";
+            TCPsocket->readAll();
+            return;
+        }
 
+        nextTcpBlockSize = 0;
+        pendingDataSize = TCPsocket->size();
+    }while (pendingDataSize != 0);
 }
 
 void MyServer::slotReadyToReadUdp()
 {
-    int c = 0;
-    UDPsocket = (QUdpSocket*)sender();
-    qDebug() << "UDP";
-    while (UDPsocket->hasPendingDatagrams()) {
-        nextBlockSize = 0;
-        QByteArray q;
-        qDebug() << UDPsocket->size();
-        q = UDPsocket->receiveDatagram().data();
-        qDebug() << q << c++;
+//    int c = 0;
+//    UDPsocket = (QUdpSocket*)sender();
+//    qDebug() << "UDP";
+//    while (UDPsocket->hasPendingDatagrams()) {
+//        nextBlockSize = 0;
+//        QByteArray q;
+//        qDebug() << UDPsocket->size();
+//        q = UDPsocket->receiveDatagram().data();
+//        qDebug() << q << c++;
 
-        QDataStream in(q);
+//        QDataStream in(q);
 
-        in.setVersion(QDataStream::Qt_6_2);
-        QString str;
+//        in.setVersion(QDataStream::Qt_6_2);
+//        QString str;
 
-        if(in.status() == QDataStream::Ok){
-            emit sendMes("reading...");
-            if(nextBlockSize == 0){
-                if(q.size() < 2){
-                    emit sendMes("Data < 2. error");
-                    break;
-                }
-                in >> nextBlockSize;
-                qDebug() << "nextBlockSize ==" << nextBlockSize;
-                if(q.size() < nextBlockSize){
-                    emit sendMes("Data not full, break");
-                    break;
-                }
+//        if(in.status() == QDataStream::Ok){
+//            emit sendMes("reading...");
+//            if(nextBlockSize == 0){
+//                if(q.size() < 2){
+//                    emit sendMes("Data < 2. error");
+//                    break;
+//                }
+//                in >> nextBlockSize;
+//                qDebug() << "nextBlockSize ==" << nextBlockSize;
+//                if(q.size() < nextBlockSize){
+//                    emit sendMes("Data not full, break");
+//                    break;
+//                }
 
-                in >> messageType;
-                nextBlockSize = 0;
+//                in >> messageType;
+//                nextBlockSize = 0;
 
-                switch (messageType) {
-                case (MouseMovement):{
-                    quint16 movementType;
-                    in >> movementType;
-                    str = "";
-                    in >> str;
-                    emit sendMouseMovement(static_cast<MouseMovementType>(movementType), str);
-                    break;
-                }
+//                switch (messageType) {
+//                case (MouseMovement):{
+//                    quint16 movementType;
+//                    in >> movementType;
+//                    str = "";
+//                    in >> str;
+//                    emit sendMouseMovement(static_cast<MouseMovementType>(movementType), str);
+//                    break;
+//                }
 
-                default:
-                    emit sendMes("Read UDP ERROR");
-                    break;
-                }
-            }
-        }
-        else{
-            emit sendMes("DataStream error");
-            return;
-        }
-    }
+//                default:
+//                    emit sendMes("Read UDP ERROR");
+//                    break;
+//                }
+//            }
+//        }
+//        else{
+//            emit sendMes("DataStream error");
+//            return;
+//        }
+//    }
 }
 
 void MyServer::disconnectRecived()

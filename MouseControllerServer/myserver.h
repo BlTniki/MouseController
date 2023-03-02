@@ -64,8 +64,10 @@ private:
     quint16 server_Port;
     QVector <QTcpSocket*> Sockets;
     QByteArray data;
-    quint16 nextBlockSize;
-    quint16 messageType;
+    quint16 nextTcpBlockSize;
+    quint16 nextUdpBlockSize;
+    quint16 message;
+    quint16 messageDetail;
 
 public slots:
     void incomingConnection(qintptr socketDescriptor);
