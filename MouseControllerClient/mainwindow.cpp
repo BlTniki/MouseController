@@ -31,52 +31,54 @@ MainWindow::MainWindow(QWidget *parent)
     connect(sb, &ScrollBar::TouchRecived, this, &MainWindow::ScrollMove);
 
     //setup settings state
-    SettingsSaves.setFileName("SettingsSaves");
-    if(SettingsSaves.exists()){
-        QString buf;
-        SettingsSaves.open(QIODevice::ReadOnly | QIODevice::Text);
-        buf = SettingsSaves.readAll();
-        SettingsSaves.close();
-        SettingsStates = QJsonDocument::fromJson(buf.toUtf8()).object();
-        ui->lE_MouseSense->setText(QString::number(SettingsStates["mouseSense"].toInt()));
-        ui->lE_ScrollSense->setText(QString::number(SettingsStates["scrollSense"].toInt()));
-
-        //recover ip history
-        int ipCount = SettingsStates["HostHistory"].toInt();
-        for (int i=0; i<ipCount; i++) {
-            QString host = SettingsStates[QString("ip%1").arg(i)].toString();
-            ui->cB_HostHistory->addItem(QString(host), i);
-        }
-        FillHostAdress(SettingsStates["lastUsedIp"].toString());
+    settings = new SettingHandler();
+    //recover mouse settings
+    ui->lE_MouseSense->setText(
+                QString::number(settings->getSavedMouseSense())
+    );
+    ui->lE_ScrollSense->setText(
+                QString::number(settings->getSavedScrollSense())
+    );
+    //recover ip history
+    FillHostAdress(settings->getLastHost());
+    QVariantList hostList = settings->getSavedHosts();
+    foreach (QVariant hostWithPort, hostList) {
+        ui->cB_HostHistory->addItem(hostWithPort.toString());
     }
 }
 
 MainWindow::~MainWindow()
 {
-    SettingsStates = QJsonObject({{"mouseSense",1},
-                                  {"scrollSense",1},
-                                  {"HostHistory",0},
-                                 });
+    //save mouse settings
+    saveMouseSettings();
 
-    SettingsStates["mouseSense"] = mouseSense;
-    SettingsStates["scrollSense"] = scrollSense;
+    //save Hosts
+    saveHosts();
 
-    int comboBoxItemCount = ui->cB_HostHistory->count();
-    SettingsStates["HostHistory"] = comboBoxItemCount;
-    for (int i=0; i<comboBoxItemCount; i++) {
-        SettingsStates[QString("ip%1").arg(i)] = ui->cB_HostHistory->itemText(i);
-    }
-    SettingsStates["lastUsedIp"] = QString(ui->lE_IPadress->text()+" "+ui->lE_Port->text());
-
-    QJsonDocument doc(SettingsStates);
-    QString jsonString = doc.toJson(QJsonDocument::Indented);
-    SettingsSaves.open(QIODevice::WriteOnly | QIODevice::Text);
-    QTextStream stream( &SettingsSaves );
-    stream << jsonString;
-    SettingsSaves.close();
     delete ui;
 }
 
+void MainWindow::saveHosts()
+{
+    int comboBoxItemCount = ui->cB_HostHistory->count();
+    QList<QString> hostList;
+    for(int i = 0; i<comboBoxItemCount; i++) {
+        QString hostWithPort = ui->cB_HostHistory->itemText(i);
+        hostList.append(hostWithPort);
+    }
+    settings->saveHost(hostList);
+    settings->setLastHost(QString(ui->lE_IPadress->text()
+                                  +" "
+                                  +ui->lE_Port->text()
+                                  )
+                          );
+}
+
+void MainWindow::saveMouseSettings()
+{
+    settings->saveMouseSense(mouseSense);
+    settings->saveScrollSense(scrollSense);
+}
 
 void MainWindow::FillHostAdress(QString host)
 {
@@ -226,6 +228,7 @@ void MainWindow::on_pB_Remeber_clicked()
     int comboBoxItemCount = ui->cB_HostHistory->count();
     QString ip = ui->lE_IPadress->text(), port = ui->lE_Port->text();
     ui->cB_HostHistory->addItem(QString(ip+" "+port), comboBoxItemCount);
+    saveHosts();
 }
 
 void MainWindow::on_pB_Forget_clicked()
@@ -303,6 +306,7 @@ void MainWindow::on_pB_SettingsBack_clicked()
 void MainWindow::on_lE_MouseSense_textChanged(const QString &arg1)
 {
     mouseSense = arg1.toInt();
+    saveMouseSettings();
 }
 
 
@@ -323,6 +327,7 @@ void MainWindow::on_pB_MouseSenseMinus_clicked()
 void MainWindow::on_lE_ScrollSense_textChanged(const QString &arg1)
 {
     scrollSense = arg1.toInt();
+    saveMouseSettings();
 }
 
 

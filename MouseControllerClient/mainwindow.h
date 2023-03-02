@@ -13,6 +13,7 @@
 
 #include "sensearea.h"
 #include "scrollbar.h"
+#include "settinghandler.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,13 +42,8 @@ private:
     QRegularExpressionValidator *scrollSenseValidator;
     QRegularExpressionValidator *ipAdressValidator;
     QRegularExpressionValidator *portValidator;
-    QJsonObject SettingsStates{{"mouseSense",1},
-                               {"scrollSense",1},
-                               {"HostHistory",2},
-                               {"ip0", "0.0.0.0 0000"},
-                               {"ip1", "0.0.0.1 0001"}
-                              };
     QFile SettingsSaves;
+    SettingHandler* settings;
     int oldMouseX = 0, oldMouseY = 0;
     int oldScrollY;
     int mouseSense=1, scrollSense=1;
@@ -92,6 +88,8 @@ private:
     };
     void SendToServerUDP(quint16 msgType, quint16 msg, QString str="");
     void SendToServerTCP(quint16 msgType, quint16 msg, QString str="");
+    void saveHosts();
+    void saveMouseSettings();
     void FillHostAdress(QString host);
 
 protected:

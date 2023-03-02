@@ -12,12 +12,14 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     scrollbar.cpp \
-    sensearea.cpp
+    sensearea.cpp \
+    settinghandler.cpp
 
 HEADERS += \
     mainwindow.h \
     scrollbar.h \
-    sensearea.h
+    sensearea.h \
+    settinghandler.h
 
 FORMS += \
     mainwindow.ui
@@ -44,3 +46,8 @@ contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
 
 RESOURCES += \
     res.qrc
+
+contains(ANDROID_TARGET_ARCH,arm64-v8a) {
+    ANDROID_PACKAGE_SOURCE_DIR = \
+        $$PWD/android
+}
