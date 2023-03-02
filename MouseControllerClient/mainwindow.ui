@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>2000</width>
-    <height>820</height>
+    <height>805</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -54,7 +54,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -74,7 +74,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>:/res/ico.jpg</pixmap>
+          <pixmap resource="res.qrc">:/res/ico.jpg</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -1550,6 +1550,8 @@
   <tabstop>pB_RightClick</tabstop>
   <tabstop>lE_ToSend</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>
